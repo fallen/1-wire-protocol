@@ -1,0 +1,62 @@
+#include "fi.h"
+
+/**
+ * Gestion de l'interruption du Timer0
+ * @param TIMER0_OVF Vecteur d'interruption
+ */
+ISR(TIMER0_OVF)
+{
+	if( !verificationTemps())
+	{
+		asm("iret");
+	}
+	if( compteur == 8 )
+	{
+		parite = (PORTD & (1 << 2) ) >> 2 );
+		if( parite_recue == parite )
+		{
+			
+		}
+		else
+		{
+			
+		}
+	}
+	else if( compteur > 8 )
+	{
+		compteur = 0;
+		reception = 0;
+	}
+	else
+	{
+		reception |= ((PORTD & (1 << 2) ) >> 2 ) << compteur );
+		compteur ++;
+	}
+}
+
+/**
+ * Gestion de l'interruption sur front changeant de la pin INT0
+ * @param PCINT0 Vecteur d'interruption
+ */
+ISR(PCINT0)
+{
+	if( (PORTD & (1 << 2 ) ))
+	{
+		relancerTimer(recharger);
+	}
+}
+
+bool verificationTemps()
+{
+	if( temps == 5 )
+		return true;
+	
+	temps++;
+	relancerTimer(recharge);
+	return false;
+}
+
+void relancerTimer(int valeur)
+{
+	TCNT1 = 65535-valeur;
+}
