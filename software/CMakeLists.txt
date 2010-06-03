@@ -26,7 +26,7 @@ SET(CMAKE_CXX_FLAGS ${CXXFLAGS})
 
 ##</lcd>
 
-SET(SRC comptetour.cpp comptetour.h roadbook.cpp roadbook.h checkpoint.h)
+SET(SRC fi.c fi.h mac.c mac.h)
 
 ADD_EXECUTABLE(1wireprotocole.out main.c ${SRC}) 
 #ADD_EXECUTABLE(compte.out ${SRC}) 
