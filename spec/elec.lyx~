@@ -46,6 +46,47 @@
 
 \begin_body
 
+\begin_layout Title
+PJ
+\begin_inset Newline newline
+\end_inset
+
+Protocole de communication
+\end_layout
+
+\begin_layout Author
+\begin_inset VSpace 13cm
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Jérémy Cheynet
+\begin_inset Newline newline
+\end_inset
+
+Yann Sionneau
+\end_layout
+
+\begin_layout Date
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename image/logo_SP.jpg
+	scale 15
+
+\end_inset
+
+
+\begin_inset space ~
+\end_inset
+
+Année 2010
+\end_layout
+
 \begin_layout Standard
 \begin_inset CommandInset toc
 LatexCommand tableofcontents
@@ -57,12 +98,6 @@ LatexCommand tableofcontents
 
 \begin_layout Part
 Théorie
-\end_layout
-
-\begin_layout Standard
-Dans cette première partie, nous allons voir l'aspect théorique de notre
- projet, en allant de l'objectif que nous nous sommes fixé, à la solution
- technique que nous avons adoptée.
 \end_layout
 
 \begin_layout Chapter
@@ -276,7 +311,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename /home/fallen/PJ/Xilinx_Spartan_3A_Evaluation_Kit_kl.jpg
+	filename image/Xilinx_Spartan_3A_Evaluation_Kit_kl.jpg
 
 \end_inset
 
@@ -482,7 +517,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename /home/fallen/PJ/chronogramme-2bits-new.png
+	filename image/chronogramme-2bits-new.png
 	scale 55
 
 \end_inset
@@ -526,7 +561,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename /home/fallen/PJ/chronogramme-octet.png
+	filename image/chronogramme-octet.png
 	scale 50
 
 \end_inset
