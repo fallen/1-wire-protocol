@@ -2,8 +2,14 @@
 #include <avr/interrupt.h>
 #include "usart.h"
 
+void puts(unsigned char *string) {
+	unsigned char i;
+	for (i = 0 ; string[i] != '\0' ; i++)
+		uart_send_char(string[i]);
+}
+
 unsigned char uart_recv_char(void) {
-	while ( !UCSR0A & (1 << RXC0) );
+	while ( ! (UCSR0A & (1 << RXC0)) );
 	
 	return UDR0;
 }
@@ -20,5 +26,5 @@ uart_init(void) {
 	
 	UCSR0B = (1<<RXEN0)|(1<<TXEN0);
 
-	UCSR0C = (1<<USBS0)|(3<<UCSZ00);
+	UCSR0C = (1 << USBS0)|(3<<UCSZ00);
 }

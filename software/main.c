@@ -15,11 +15,9 @@ int main(void)
 
 
 	uart_init();
-
-	uart_send_char('a');
-	uart_send_char('b');
-
-	while (1);
-
+	puts("initialisation...\n\r");
+	
+	
+	puts("=FIN=\n\r");
 	return 0;
 }

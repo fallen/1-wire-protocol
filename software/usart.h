@@ -5,10 +5,4 @@ void uart_send_char(unsigned char);
 
 #define BAUD_RATE 9600
 
-#define UBRR FREQ/16/BAUD_RATE-1
-/*
-#define UBRR0H (unsigned char *)0xC5
-#define UBRR0L (unsigned char *)0xC4
-
-#define UCSR0A	(unsigned char*)0xC0
-*/
+#define UBRR (FREQ/8/BAUD_RATE - 1)/2
