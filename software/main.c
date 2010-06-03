@@ -7,10 +7,19 @@
 
 //pour flasher la puce
 //avr-objcopy -O ihex -R .eeprom test.out test.hex
-//sudo avrdude -v  -P  usb -c usbasp -p m328p  -U flash:w:test.hex
-//sudo avrdude  -c usbtiny -p m328p  -U flash:w:test.hex 
+//sudo avrdude -P /dev/ttyUSB0 -c stk500v1 -p m328p -b 57600 -U flash:w:main.hex
 
-int main(void )
+
+int main(void)
 {
 
+
+	uart_init();
+
+	uart_send_char('a');
+	uart_send_char('b');
+
+	while (1);
+
+	return 0;
 }
