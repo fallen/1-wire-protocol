@@ -26,7 +26,7 @@ SET(CMAKE_CXX_FLAGS ${CXXFLAGS})
 
 ##</lcd>
 
-SET(SRC phi.c phi.h mac.c mac.h usart.c usart.h global.h)
+SET(SRC phy.c phy.h mac.c mac.h usart.c usart.h global.h)
 
 ADD_EXECUTABLE(1_wire_protocole.out main.c ${SRC}) 
 #ADD_EXECUTABLE(compte.out ${SRC}) 
