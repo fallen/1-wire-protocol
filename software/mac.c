@@ -1,3 +1,5 @@
+#include "mac.h"
+
 void init_mac(void) {
 
 	recv_index = 0;
