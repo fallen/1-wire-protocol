@@ -84,6 +84,9 @@ void initTimer(void)
 	
 	//Permet d'activer l'interruption timer 1
 	TIMSK1 |= (1 << TOIE1);
+	
+	//Permet de lancer le timer
+	TCCR1B |= (1 << CS10 );
 }
 
 unsigned char emissionOctet( unsigned char octet)
