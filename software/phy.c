@@ -8,7 +8,7 @@ ISR(TIMER1_OVF_vect)
 {
 	if( !verificationTemps())
 	{
-		asm("iret");
+		asm("reti");
 	}
 	if( compteur == 8 )
 	{
@@ -57,7 +57,7 @@ unsigned char verificationTemps()
 void relancerTimer(int valeur)
 {
 	sreg = SREG;
-	_CLI();
+	cli();
 	TCNT1 = 65535-valeur;
 	SREG = sreg;
 }
