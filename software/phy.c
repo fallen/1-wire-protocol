@@ -30,7 +30,7 @@ ISR(TIMER1_OVF_vect)
 	}
 	else
 	{
-		reception |= ((PORTD & (1 << 2) ) >> 2 ) << compteur );
+		reception |= ( ((PORTD & (1 << 2) ) >> 2 ) << compteur );
 		compteur++;
 	}
 }
