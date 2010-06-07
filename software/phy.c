@@ -4,7 +4,7 @@
  * Gestion de l'interruption du Timer0
  * @param TIMER0_OVF Vecteur d'interruption
  */
-ISR(TIMER1_OVF)
+ISR(TIMER1_OVF_vect)
 {
 	if( !verificationTemps())
 	{
@@ -39,7 +39,7 @@ ISR(TIMER1_OVF)
  * Gestion de l'interruption sur front changeant de la pin INT0
  * @param PCINT0 Vecteur d'interruption
  */
-ISR(PCINT0)
+ISR(PCINT0_vect)
 {
 	relancerTimer(RECHARGE);
 }
@@ -69,5 +69,5 @@ void initTimer()
 	TCCR1B &= (~(1 << WGM12 ) & ~(1 << WGM13));
 	
 	//Permet d'activer l'interruption timer 1
-	TIMSK1 |= (1 << T0IE1);
+	TIMSK1 |= (1 << TOIE1);
 }
