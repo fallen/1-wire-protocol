@@ -1,3 +1,6 @@
+#ifndef _USART_H_
+#define _USART_H_
+
 void puts(const unsigned char *);
 unsigned char uart_recv_char(void);
 void uart_send_char(unsigned char);
@@ -7,3 +10,5 @@ void uart_send_char(unsigned char);
 #define BAUD_RATE 9600
 
 #define UBRR (FREQ/8/BAUD_RATE - 1)/2
+
+#endif
