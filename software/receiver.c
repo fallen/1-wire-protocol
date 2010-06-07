@@ -13,7 +13,7 @@
 //avr-objcopy -O ihex -R .eeprom test.out test.hex
 //sudo avrdude -P /dev/ttyUSB0 -c stk500v1 -p m328p -b 57600 -U flash:w:main.hex
 
-extern unsigned char reception_buffer;
+extern struct packet reception_buffer;
 
 int main(void)
 {

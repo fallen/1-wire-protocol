@@ -10,11 +10,19 @@ unsigned char mutex_ligne;
  * Gestion de l'interruption du Timer0
  * @param TIMER0_OVF Vecteur d'interruption
  */
+
+void init_phy(void) {
+	initTimer();
+}
+
 ISR(TIMER1_OVF_vect)
 {
 	unsigned char compteur = 0;
 	unsigned char reception = 0;
 	unsigned char parite_recue = 0;
+	puts("compteur = ");
+	uart_send_char(compteur + '0');
+	puts("\r\n");
 	if( !verificationTemps() || mutex_ligne)
 	{
 		asm("reti");

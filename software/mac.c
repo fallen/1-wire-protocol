@@ -1,12 +1,17 @@
 #include "mac.h"
+#include "phy.h"
 #include "global.h"
+
+struct packet reception_buffer;
+
+struct light_packet rx_ring_buff[4];
 
 void init_mac(void) {
 
 	recv_index = 0;
 	ring_buffer_index = 0;
 	current_packet_size = MAX_PACKET_SIZE + 1;
-
+	init_phy();
 }
 
 inline void clear_ring_buffer_overflow(void) {
