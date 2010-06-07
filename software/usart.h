@@ -1,7 +1,8 @@
 #ifndef _USART_H_
 #define _USART_H_
 
-void puts(const unsigned char *);
+void uart_init(void);
+void puts(const char *);
 unsigned char uart_recv_char(void);
 void uart_send_char(unsigned char);
 

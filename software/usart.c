@@ -2,7 +2,7 @@
 #include <avr/interrupt.h>
 #include "usart.h"
 
-void puts(const unsigned char *string) {
+void puts(const char *string) {
 	unsigned char i;
 	for (i = 0 ; string[i] != '\0' ; i++)
 		uart_send_char(string[i]);
@@ -20,7 +20,7 @@ void uart_send_char(unsigned char byte) {
 	UDR0 = byte;
 }
 
-uart_init(void) {
+void uart_init(void) {
 	UBRR0H = (unsigned char)(UBRR >> 8);
 	UBRR0L = (unsigned char)UBRR;
 	
