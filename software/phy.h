@@ -3,6 +3,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 #include "global.h"
 
 #define RECHARGE 16000
@@ -32,6 +33,11 @@ unsigned char parite = 0;
  */
 unsigned char temps = 0;
 
+/**
+ * Mutex de prise de la ligne
+ */
+unsigned char mutex_ligne;
+
 
 
 /**
@@ -50,5 +56,30 @@ void relancerTimer(int valeur);
  * initTimer permet d'intialiser le timer 1 pour le traitement de la couche physique
  */
 void initTimer(void);
+
+/**
+ * Emission d'un octet
+ * @param octet est l'octet que l'on veut emettre
+ * @return retourne un code annonçant l'état de l'émission (0 = échoué, autre pour un succès)
+ */
+unsigned char emissionOctet( unsigned char octet);
+
+/**
+ * Envoie d'un bit logique haut
+ * @return code retour de la fonction pour s'assurer de sont bon fonctionnement
+ */
+unsigned char envoieHaut( void );
+
+/**
+ * Envoie d'un bit logique bas
+ * @return code retour de la fonction pour s'assurer de sont bon fonctionnement
+ */
+unsigned char envoieBas( void );
+
+/**
+ * Calcul de la parité
+ * @return la parité
+ */
+unsigned char xor( unsigned char octet );
 
 #endif

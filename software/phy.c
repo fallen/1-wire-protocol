@@ -27,9 +27,11 @@ ISR(TIMER1_OVF_vect)
 	{
 		compteur = 0;
 		reception = 0;
+		mutex_ligne = 0;
 	}
 	else
 	{
+		mutex_ligne = 1;
 		reception |= ( ((PORTD & (1 << 2) ) >> 2 ) << compteur );
 		compteur++;
 	}
@@ -70,4 +72,75 @@ void initTimer(void)
 	
 	//Permet d'activer l'interruption timer 1
 	TIMSK1 |= (1 << TOIE1);
+}
+
+unsigned char emissionOctet( unsigned char octet)
+{
+	//compteur2 et parite2 sont des variables locales pour savoir quel est le numéro du bit qu'on envoie et la parite calculée.
+	unsigned char compteur2 = 0;
+	if( mutex_ligne )
+		return 0;
+	for( compteur2 = 0; compteur2 < 8; compteur2++)
+	{
+		if( (octet &= (1 << compteur2)) )
+		{
+			if( !(envoieHaut()) )
+				return 0;
+		}
+		else
+		{
+			if( !(envoieBas()) )
+				return 0;
+		}
+	}
+	if( (xor(octet)) )
+	{
+		if( !(envoieHaut()) )
+			return 0;
+	}
+	else
+	{
+		if( !(envoieBas()) )
+			return 0;
+	}
+	return 1;
+}
+
+
+unsigned char envoieHaut( void )
+{
+	if( mutex_ligne )
+		return 0;
+	PORTD |= (1 << PORTD2);
+	_delay_ms(7);
+	PORTD &= ~(1 << PORTD2);
+	_delay_ms(3);
+	return 1;
+}
+
+
+unsigned char envoieBas( void )
+{
+	if( mutex_ligne )
+		return 0;
+	PORTD |= (1 << PORTD2);
+	_delay_ms(3);
+	PORTD &= ~(1 << PORTD2);
+	_delay_ms(7);
+	return 1;
+}
+
+unsigned char xor( unsigned char octet )
+{
+	unsigned char parite2=0;
+	parite2 ^= octet;
+	parite2 ^= (octet << 1);
+	parite2 ^= (octet << 2);
+	parite2 ^= (octet << 3);
+	parite2 ^= (octet << 4);
+	parite2 ^= (octet << 5);
+	parite2 ^= (octet << 6);
+	parite2 ^= (octet << 7);
+	parite2 &= 0x80;
+	return parite2;
 }
