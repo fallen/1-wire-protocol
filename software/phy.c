@@ -7,6 +7,9 @@
  */
 ISR(TIMER1_OVF_vect)
 {
+	unsigned char compteur = 0;
+	unsigned char reception = 0;
+	unsigned char parite_recue = 0;
 	if( !verificationTemps() || mutex_ligne)
 	{
 		asm("reti");
@@ -51,6 +54,7 @@ ISR(PCINT0_vect)
 
 unsigned char verificationTemps(void)
 {
+	unsigned char temps = 0;
 	if( temps == 5 )
 		return 42;
 	
