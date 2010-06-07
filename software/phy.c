@@ -6,7 +6,7 @@
  */
 ISR(TIMER1_OVF_vect)
 {
-	if( !verificationTemps())
+	if( !verificationTemps() || mutex_ligne)
 	{
 		asm("reti");
 	}
@@ -43,6 +43,8 @@ ISR(TIMER1_OVF_vect)
  */
 ISR(PCINT0_vect)
 {
+	if( mutex_ligne )
+		reti();
 	relancerTimer(RECHARGE);
 }
 
@@ -80,6 +82,8 @@ unsigned char emissionOctet( unsigned char octet)
 	unsigned char compteur2 = 0;
 	if( mutex_ligne )
 		return 0;
+	mutex_ligne = 1;
+	DDRD |= ( 1<<DDD2 );
 	for( compteur2 = 0; compteur2 < 8; compteur2++)
 	{
 		if( (octet &= (1 << compteur2)) )
@@ -103,6 +107,8 @@ unsigned char emissionOctet( unsigned char octet)
 		if( !(envoieBas()) )
 			return 0;
 	}
+	DDRD &= ~( 1<<DDD2 );
+	mutex_ligne = 0;
 	return 1;
 }
 
