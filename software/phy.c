@@ -44,7 +44,7 @@ ISR(PCINT0_vect)
 	relancerTimer(RECHARGE);
 }
 
-unsigned char verificationTemps()
+unsigned char verificationTemps(void)
 {
 	if( temps == 5 )
 		return 42;
@@ -62,7 +62,7 @@ void relancerTimer(int valeur)
 	SREG = sreg;
 }
 
-void initTimer()
+void initTimer(void)
 {
 	//Permet de mettre les bonnes valeurs dans les registres pour activer le timer 1 en mode normal
 	TCCR1A &= (~(1 << WGM10 ) & ~(1 << WGM11));

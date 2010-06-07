@@ -38,7 +38,7 @@ unsigned char temps = 0;
  * Verification du temps pour être sur que nous ayons atteint le imparti
  * @return Retourne un booléen pour dire si le temps est OK (42) ou non (0)
  */
-unsigned char verificationTemps();
+unsigned char verificationTemps(void);
 
 /**
  * Fonction servant à relancer le timer 0 avec les bonnes valeurs.
@@ -49,6 +49,6 @@ void relancerTimer(int valeur);
 /**
  * initTimer permet d'intialiser le timer 1 pour le traitement de la couche physique
  */
-void initTimer();
+void initTimer(void);
 
 #endif
