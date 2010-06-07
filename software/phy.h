@@ -8,32 +8,6 @@
 
 #define RECHARGE 16000
 
-/**
- * Compteur permettant de savoir quel sera le prochain bit reçu.
- */
-unsigned char compteur = 0;
-
-/**
- * Variable recevant l'octet à réceptionner
- */
-unsigned char reception = 0;
-
-/**
- * Bit de parité envoyé par l'émetteur
- */
-unsigned char parite_recue = 0;
-
-/**
- * Compteur de temps pour faire 5 ms
- */
-unsigned char temps = 0;
-
-/**
- * Mutex de prise de la ligne
- */
-unsigned char mutex_ligne;
-
-
 
 /**
  * Verification du temps pour être sur que nous ayons atteint le imparti
