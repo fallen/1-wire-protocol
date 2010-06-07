@@ -21,6 +21,7 @@ ISR(TIMER0_OVF)
 		{
 			
 		}
+		compteur++;
 	}
 	else if( compteur > 8 )
 	{
@@ -30,7 +31,7 @@ ISR(TIMER0_OVF)
 	else
 	{
 		reception |= ((PORTD & (1 << 2) ) >> 2 ) << compteur );
-		compteur ++;
+		compteur++;
 	}
 }
 
