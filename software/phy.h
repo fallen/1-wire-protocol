@@ -8,11 +8,6 @@
 
 #define RECHARGE 16000
 
-/**
- * Mutex de prise de la ligne
- */
-unsigned char mutex_ligne;
-
 
 /**
  * Verification du temps pour être sur que nous ayons atteint le imparti

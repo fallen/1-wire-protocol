@@ -2,6 +2,11 @@
 #include "mac.h"
 
 /**
+ * Mutex de prise de la ligne
+ */
+unsigned char mutex_ligne;
+
+/**
  * Gestion de l'interruption du Timer0
  * @param TIMER0_OVF Vecteur d'interruption
  */
