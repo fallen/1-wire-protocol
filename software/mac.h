@@ -3,6 +3,8 @@
 
 #define MAX_PACKET_SIZE 15
 
+void init_mac(void);
+
 void push_byte(unsigned char);
 
 void clear_ring_buffer_overflow(void);
