@@ -50,6 +50,6 @@ void relancerTimer(int valeur);
 /**
  * initTimer permet d'intialiser le timer 1 pour le traitement de la couche physique
  */
-void 
+void initTimer();
 
 #ENDIF
