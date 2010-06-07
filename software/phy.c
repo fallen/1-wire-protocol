@@ -12,7 +12,7 @@ ISR(TIMER1_OVF_vect)
 	}
 	if( compteur == 8 )
 	{
-		parite_recue = (PORTD & (1 << 2) ) >> 2 );
+		parite_recue = ( (PORTD & (1 << 2) ) >> 2 );
 		if( parite_recue == parite )
 		{
 			
