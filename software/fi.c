@@ -46,17 +46,20 @@ ISR(PCINT0)
 	}
 }
 
-bool verificationTemps()
+unsigned char verificationTemps()
 {
 	if( temps == 5 )
-		return true;
+		return 42;
 	
 	temps++;
 	relancerTimer(recharge);
-	return false;
+	return 0;
 }
 
 void relancerTimer(int valeur)
 {
+	sreg = SREG;
+	_CLI();
 	TCNT1 = 65535-valeur;
+	SREG = sreg;
 }

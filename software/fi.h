@@ -30,10 +30,15 @@ unsigned char parite = 0;
  */
 unsigned char temps = 0;
 
+/**
+ * sreg permet de stocker les variables de conf du timer
+ */
+unsigned char sreg;
+
 
 /**
  * Verification du temps pour être sur que nous ayons atteint le imparti
- * @return Retourne un booléen pour dire si le temps est OK
+ * @return Retourne un booléen pour dire si le temps est OK (42) ou non (0)
  */
 unsigned char verificationTemps();
 
