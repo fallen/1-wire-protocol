@@ -4,7 +4,7 @@
  * Gestion de l'interruption du Timer0
  * @param TIMER0_OVF Vecteur d'interruption
  */
-ISR(TIMER0_OVF)
+ISR(TIMER1_OVF)
 {
 	if( !verificationTemps())
 	{
@@ -41,10 +41,7 @@ ISR(TIMER0_OVF)
  */
 ISR(PCINT0)
 {
-	if( (PORTD & (1 << 2 ) ))
-	{
-		relancerTimer(recharger);
-	}
+	relancerTimer(RECHARGE);
 }
 
 unsigned char verificationTemps()
@@ -63,4 +60,14 @@ void relancerTimer(int valeur)
 	_CLI();
 	TCNT1 = 65535-valeur;
 	SREG = sreg;
+}
+
+void initTimer()
+{
+	//Permet de mettre les bonnes valeurs dans les registres pour activer le timer 1 en mode normal
+	TCCR1A &= (~(1 << WGM10 ) & ~(1 << WGM11));
+	TCCR1B &= (~(1 << WGM12 ) & ~(1 << WGM13));
+	
+	//Permet d'activer l'interruption timer 1
+	TIMSK1 |= (1 << T0IE1);
 }

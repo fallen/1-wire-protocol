@@ -3,7 +3,10 @@
 #include <util/delay.h>
 #include "global.h"
 
-#define recharge 16000
+#ifdef PHY_H
+#define PHY_H
+
+#define RECHARGE 16000
 
 /**
  * Compteur permettant de savoir quel sera le prochain bit reçu.
@@ -30,10 +33,6 @@ unsigned char parite = 0;
  */
 unsigned char temps = 0;
 
-/**
- * sreg permet de stocker les variables de conf du timer
- */
-unsigned char sreg;
 
 
 /**
@@ -47,3 +46,10 @@ unsigned char verificationTemps();
  * @param valeur Valeur à recharger dans le timer
  */
 void relancerTimer(int valeur);
+
+/**
+ * initTimer permet d'intialiser le timer 1 pour le traitement de la couche physique
+ */
+void 
+
+#ENDIF
