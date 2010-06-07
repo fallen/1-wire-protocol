@@ -24,11 +24,6 @@ unsigned char reception = 0;
 unsigned char parite_recue = 0;
 
 /**
- * Bit de parité calculé par le récepteur
- */
-unsigned char parite = 0;
-
-/**
  * Compteur de temps pour faire 5 ms
  */
 unsigned char temps = 0;

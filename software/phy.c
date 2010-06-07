@@ -13,9 +13,9 @@ ISR(TIMER1_OVF_vect)
 	if( compteur == 8 )
 	{
 		parite_recue = ( (PORTD & (1 << 2) ) >> 2 );
-		if( parite_recue == parite )
+		if( parite_recue == (xor(reception) >> 7) )
 		{
-			
+			push_byte(reception);
 		}
 		else
 		{
