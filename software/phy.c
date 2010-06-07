@@ -50,7 +50,7 @@ unsigned char verificationTemps()
 		return 42;
 	
 	temps++;
-	relancerTimer(recharge);
+	relancerTimer(RECHARGE);
 	return 0;
 }
 
