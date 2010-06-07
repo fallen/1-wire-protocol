@@ -1,9 +1,9 @@
+#ifndef PHY_H
+#define PHY_H
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "global.h"
-
-#ifdef PHY_H
-#define PHY_H
 
 #define RECHARGE 16000
 
@@ -51,4 +51,4 @@ void relancerTimer(int valeur);
  */
 void initTimer();
 
-#ENDIF
+#endif
