@@ -6,6 +6,8 @@
  */
 unsigned char sreg;
 
+unsigned char ring_buffer_overflow;
+
 struct packet {
 	unsigned char src;
 	unsigned char dest;

@@ -3,6 +3,12 @@
 
 #define MAX_PACKET_SIZE 15
 
+void clear_ring_buffer_overflow(void);
+
+void copy_packet_to_rx_ring(void);
+
+unsigned char rx_buffer_overflow(void);
+
 unsigned char recv_index;
 
 unsigned char ring_buffer_index;

@@ -4,6 +4,10 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "usart.h"
+#include "global.h"
+#include "mac.h"
+
 
 //pour flasher la puce
 //avr-objcopy -O ihex -R .eeprom test.out test.hex

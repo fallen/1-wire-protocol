@@ -9,6 +9,10 @@ void init_mac(void) {
 
 }
 
+inline void clear_ring_buffer_overflow(void) {
+	ring_buffer_overflow = 0;
+}
+
 void push_byte(unsigned char b) {
 
 	if (recv_index >= current_packet_size || recv_index == MAX_PACKET_SIZE) {
@@ -56,8 +60,4 @@ unsigned char rx_buffer_overflow(void) {
 	unsigned char temp = ring_buffer_overflow;
 	clear_ring_buffer_overflow();
 	return temp;
-}
-
-inline void clear_ring_buffer_overflow(void) {
-	ring_buffer_overflow = 0;
 }
