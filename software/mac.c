@@ -1,4 +1,5 @@
 #include "mac.h"
+#include "global.h"
 
 void init_mac(void) {
 
