@@ -25,6 +25,10 @@ int main(void)
 	puts("MAC layer initialized !\n\r");
 
 	while (1) {
+/*		puts("timer = ");
+		uart_send_char(TCNT1 >> 8);
+		uart_send_char( (unsigned char)TCNT1);
+		puts("\r\n");*/
 		puts("Received : ");
 		uart_send_char(reception_buffer.src);
 		puts("\n\r");

@@ -13,23 +13,28 @@ unsigned char mutex_ligne;
 
 void init_phy(void) {
 	initTimer();
+	puts("init_phy();\r\n");
 }
 
 ISR(TIMER1_OVF_vect)
 {
-	unsigned char compteur = 0;
+	static unsigned char compteur = 0;
 	unsigned char reception = 0;
 	unsigned char parite_recue = 0;
-	puts("compteur = ");
+/*	puts("compteur = ");
 	uart_send_char(compteur + '0');
-	puts("\r\n");
+	puts("\r\n");*/
+
 	if( !verificationTemps() || mutex_ligne)
 	{
-		asm("reti");
+		//asm("reti");
 	}
 	if( compteur == 8 )
 	{
-		parite_recue = ( (PORTD & (1 << 2) ) >> 2 );
+
+		push_byte(reception);
+
+/*		parite_recue = ( (PORTD & (1 << 2) ) >> 2 );
 		if( parite_recue == (xor(reception) >> 7) )
 		{
 			push_byte(reception);
@@ -37,7 +42,7 @@ ISR(TIMER1_OVF_vect)
 		else
 		{
 			
-		}
+		}*/
 		compteur++;
 	}
 	else if( compteur > 8 )
@@ -60,6 +65,7 @@ ISR(TIMER1_OVF_vect)
  */
 ISR(PCINT0_vect)
 {
+	puts("LOL\r\n");
 	if( mutex_ligne )
 		reti();
 	relancerTimer(RECHARGE);
@@ -95,6 +101,8 @@ void initTimer(void)
 	
 	//Permet de lancer le timer
 	TCCR1B |= (1 << CS10 );
+
+	sei();
 }
 
 unsigned char emissionOctet( unsigned char octet)
