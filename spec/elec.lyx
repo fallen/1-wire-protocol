@@ -837,8 +837,1116 @@ Pratique
 Microcontrôleur
 \end_layout
 
+\begin_layout Section
+La couche physique : phy.c et phy.h
+\end_layout
+
+\begin_layout Section
+La couche d'adressage : mac.c et mac.h
+\end_layout
+
+\begin_layout Section
+La couche applicative : main.c
+\end_layout
+
+\begin_layout Section
+Le débogage
+\end_layout
+
+\begin_layout Standard
+Afin de déboguer notre programme, nous avons mis au point des petits programmes
+ de tests qui utilisent la liaison série.
+ Ces programmes envoient ou reçoivent des octets, et les renvoient sur la
+ liaison série pour pouvoir les afficher sur un ordinateur.
+\end_layout
+
+\begin_layout Subsection
+La liaison série
+\end_layout
+
+\begin_layout Standard
+En plus du port série du microcontrôleur ATmega328, la carte arduino (que
+ nous avons utilisé pour le développement de notre programme) possède un
+ FTDI.
+ Celui-ci permet de faire la conversion du signal série TTL en signal série
+ RS232.
+\end_layout
+
+\begin_layout Standard
+Nous avons créé les fonctions qui nous permettent d'émettre sur le port
+ série, afin de voir la progression de notre programme.
+\end_layout
+
+\begin_layout Standard
+Les fonctions que nous avons faites (dont les codes sources se trouvent
+ en annexe) permettent d'initialiser la liaison série, de recevoir ou émettre
+ un caractère, et d'envoyer un chaine de caractères.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},language=C"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+void uart_init(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void puts(const char *);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+unsigned char uart_recv_char(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void uart_send_char(unsigned char);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+prototype des fonctions utilisant la liaison série
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+uart_init
+\end_layout
+
+\begin_layout Standard
+La fonction 
+\emph on
+void uart_init(void)
+\emph default
+ permet d'initialiser la liaison série à la bonne fréquence
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+La liaison série s'effectue à une fréquence de 9600 bauds.
+\end_layout
+
+\end_inset
+
+ en fonction de la fréquence du quartz
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Le quartz de la carte arduino est de 16 MHz.
+\end_layout
+
+\end_inset
+
+.
+ Le mode de fonctionnement que nous utilisons est le mode polling (pour
+ ne pas utiliser de timer).
+\end_layout
+
+\begin_layout Subsubsection
+uart_send_char
+\end_layout
+
+\begin_layout Standard
+La fonction 
+\emph on
+void uart_send_char(unsigned char)
+\emph default
+ prend en paramètre un octet, et l'envoie par la liaison série.
+\end_layout
+
+\begin_layout Subsubsection
+puts
+\end_layout
+
+\begin_layout Standard
+La fonction 
+\emph on
+void puts(const char *)
+\emph default
+ prend en paramètre un pointeur vers une chaine de caractère et va utiliser
+ la fontion uart_send_char pour envoyer la chaine de caractère
+\emph on
+.
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Box Ovalbox
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status collapsed
+
+\begin_layout Plain Layout
+
+\emph on
+\begin_inset Graphics
+	filename image/attention.gif
+	lyxscale 10
+	scale 7
+	rotateOrigin rightBaseline
+
+\end_inset
+
+Il faut la chaine de caractère donnée à la fonction 
+\begin_inset Quotes eld
+\end_inset
+
+puts
+\begin_inset Quotes erd
+\end_inset
+
+ se termine par un 
+\begin_inset Quotes eld
+\end_inset
+
+
+\backslash
+0
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Dans le cas contraire, la fonction 
+\begin_inset Quotes eld
+\end_inset
+
+puts
+\begin_inset Quotes erd
+\end_inset
+
+ lira toute la mémoire jusqu'au reset du microcontroleur.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+uart_recv_char
+\end_layout
+
+\begin_layout Standard
+La fonction 
+\emph on
+unsigned char uart_recv_char(void)
+\emph default
+ permet de recevoir un octet de la liaison série.
+\end_layout
+
+\begin_layout Subsection
+Les programmes de tests
+\end_layout
+
+\begin_layout Subsubsection
+Sender
+\end_layout
+
+\begin_layout Standard
+Afin de tester les fonctions de bases, nous avons fait un programme qui
+ émet en boucle un caractère
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Nous émettons le signal 
+\begin_inset Quotes eld
+\end_inset
+
+@
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},language=C,numbers=left,numberstyle={\scriptsize}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#include <avr/io.h>
+\end_layout
+
+\begin_layout Plain Layout
+
+#include <avr/interrupt.h>
+\end_layout
+
+\begin_layout Plain Layout
+
+#include "usart.h"
+\end_layout
+
+\begin_layout Plain Layout
+
+#include "global.h"
+\end_layout
+
+\begin_layout Plain Layout
+
+#include "mac.h"
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+int main(void)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	while (1)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{
+\end_layout
+
+\begin_layout Plain Layout
+
+		emissionOctet('@');
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	return 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+} 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+sender.c
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Receiver
+\end_layout
+
+\begin_layout Standard
+Toujours dans le cadre du débogage, nous avons fait une fonction qui reçoit
+ un caractère par l'intermédiaire de notre protocole, et renvoie ce caractère
+ par la liaison série.
+ Ainsi, nous pouvons vérifier que nous recevons bien le caractère voulu.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},language=C,numbers=left,numberstyle={\scriptsize}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#include <avr/io.h>
+\end_layout
+
+\begin_layout Plain Layout
+
+#include <avr/interrupt.h>
+\end_layout
+
+\begin_layout Plain Layout
+
+#include "usart.h"
+\end_layout
+
+\begin_layout Plain Layout
+
+#include "global.h"
+\end_layout
+
+\begin_layout Plain Layout
+
+#include "mac.h"
+\end_layout
+
+\begin_layout Plain Layout
+
+#include "phy.h"
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+int main(void)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	uart_init();
+\end_layout
+
+\begin_layout Plain Layout
+
+	puts("initialisation...
+\backslash
+n
+\backslash
+r");
+\end_layout
+
+\begin_layout Plain Layout
+
+	init_mac();
+\end_layout
+
+\begin_layout Plain Layout
+
+	puts("MAC layer initialized !
+\backslash
+n
+\backslash
+r");
+\end_layout
+
+\begin_layout Plain Layout
+
+	while (1)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{
+\end_layout
+
+\begin_layout Plain Layout
+
+		puts("Received : ");
+\end_layout
+
+\begin_layout Plain Layout
+
+		uart_send_char(reception_buffer.src);
+\end_layout
+
+\begin_layout Plain Layout
+
+		puts("
+\backslash
+n
+\backslash
+r");
+\end_layout
+
+\begin_layout Plain Layout
+
+	} 
+\end_layout
+
+\begin_layout Plain Layout
+
+	puts("=FIN=
+\backslash
+n
+\backslash
+r");
+\end_layout
+
+\begin_layout Plain Layout
+
+	return 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+receiver.c
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Chapter
 FPGA
+\end_layout
+
+\begin_layout Part
+Annexes
+\end_layout
+
+\begin_layout Chapter
+Code source microcontrôleur
+\end_layout
+
+\begin_layout Section
+La liaison série
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout LyX-Code
+\align center
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},language=C,numbers=left,numberstyle={\scriptsize}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#include <avr/io.h>
+\end_layout
+
+\begin_layout Plain Layout
+
+#include <avr/interrupt.h>
+\end_layout
+
+\begin_layout Plain Layout
+
+#include "usart.h"
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void puts(const char *string)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	unsigned char i;
+\end_layout
+
+\begin_layout Plain Layout
+
+	for (i = 0 ; string[i] != '
+\backslash
+0' ; i++) 		
+\end_layout
+
+\begin_layout Plain Layout
+
+		uart_send_char(string[i]);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+unsigned char uart_recv_char(void)
+\end_layout
+
+\begin_layout Plain Layout
+
+{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+	while ( ! (UCSR0A & (1 << RXC0)) ); 
+\end_layout
+
+\begin_layout Plain Layout
+
+		return UDR0;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void uart_send_char(unsigned char byte)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	while ( !( UCSR0A & (1<<UDRE0)) );
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	UDR0 = byte;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void uart_init(void)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	UBRR0H = (unsigned char)(UBRR >> 8);
+\end_layout
+
+\begin_layout Plain Layout
+
+	UBRR0L = (unsigned char)UBRR; 
+\end_layout
+
+\begin_layout Plain Layout
+
+	UCSR0B = (1<<RXEN0)|(1<<TXEN0);
+\end_layout
+
+\begin_layout Plain Layout
+
+	UCSR0C = (1 << USBS0)|(3<<UCSZ00);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+usart.c
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},language=C,numbers=left,numberstyle={\scriptsize}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#ifndef _USART_H_
+\end_layout
+
+\begin_layout Plain Layout
+
+#define _USART_H_
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void uart_init(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void puts(const char *);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+unsigned char uart_recv_char(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void uart_send_char(unsigned char);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+#define FREQ 16000000
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+#define BAUD_RATE 9600
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+#define UBRR (FREQ/8/BAUD_RATE - 1)/2
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+#endif 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+usart.h
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+La couche physique
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+phy.c
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+phy.h
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+La couche d'adressage
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+mac.c
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+mac.h
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+La couche applicative
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+main.c
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter*
+Code source FPGA
 \end_layout
 
 \begin_layout Standard
