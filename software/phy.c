@@ -63,10 +63,12 @@ ISR(INT1_vect) {
 
 ISR(TIMER1_OVF_vect)
 {
+	TCCR1B &= ~(1 << CS10 );
 	static unsigned char compteur = 0;
 	unsigned char reception = 0;
 	unsigned char parite_recue = 0;
 	static unsigned char nest = 0;
+	
 
 	nest++;
 
@@ -108,7 +110,6 @@ ISR(TIMER1_OVF_vect)
 		compteur = 0;
 		reception = 0;
 		mutex_ligne = 0;
-		TCCR1B &= ~(1 << CS10 );
 		TIMSK1 &= ~(1 << TOIE1);
 
 	}
@@ -139,7 +140,8 @@ ISR(INT0_vect)
 unsigned char verificationTemps(void)
 {
 	static unsigned char temps = 0;
-	if( temps == 5 ) {
+	if( temps == 5 )
+	{
 		temps = 0;
 		return 42;
 	}
