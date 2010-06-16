@@ -8,7 +8,8 @@ unsigned char mutex_ligne;
 
 void initPin(void) {
 
-	DDRD &= ~( 1<<DDD2 );
+	DDRD &= ~( 1 << PORTD2 );
+	PORTD |= ( 1 << PORTD2 );
 	EICRA |= (1 << ISC01) | (1 << ISC00);
 }
 
@@ -20,7 +21,8 @@ void init_phy(void) {
 	puts("blah blah blah blah blah 2222\n");
 	initTimer();
 	puts("blah blah blah blah blah 3333\n");
-	EIMSK = 1; // disables INT1 and enables INT0
+	EIMSK = (1 << INT0); // disables INT1 and enables INT0
+	EIMSK &= ~(1 << INT1);
 	PCICR = 0; // disables all the other PIN CHANGE interrupts
 	PCMSK0 = 0; // mask the pin change interrupts
 	PCMSK1 = 0; // idem
@@ -63,7 +65,6 @@ ISR(INT1_vect) {
 
 ISR(TIMER1_OVF_vect)
 {
-	TCCR1B &= ~(1 << CS10 );
 	static unsigned char compteur = 0;
 	unsigned char reception = 0;
 	unsigned char parite_recue = 0;
@@ -71,8 +72,9 @@ ISR(TIMER1_OVF_vect)
 	
 
 	nest++;
-
-	puts("nest = ");
+	TCCR1B &= ~(1 << CS10 );
+	TIMSK1 &= ~(1 << TOIE1);
+	puts("timer nest = ");
 	uart_send_char(0x30 + nest);
 	puts("\r\n");
 /*	puts("compteur = ");
@@ -85,7 +87,9 @@ ISR(TIMER1_OVF_vect)
 	{
 		//puts("TIMER1_OVF , temps != 5\r\n");
 		nest--;
-		asm("reti");
+		//asm("reti");
+		//reti();
+		return;
 		//puts("LOLILOL\r\n");
 	}
 	if( compteur == 8 )
@@ -130,11 +134,17 @@ ISR(TIMER1_OVF_vect)
  */
 ISR(INT0_vect)
 {
-	EIFR |= (1 << INTF0); // Clears the External Interrupt Flag 0
+	static unsigned char nest = 0;
+	nest++;
+	puts("INT0 nest = ");
+	uart_send_char(0x30 + nest);
+	puts("\r\n");
+//	EIFR |= (1 << INTF0); // Clears the External Interrupt Flag 0
 	puts("LOL LOL LOL LOL LOL LOL LOL\r\n");
 //	if( mutex_ligne )
 //		reti();
-	relancerTimer(RECHARGE);
+//	relancerTimer(RECHARGE);
+	nest--;
 }
 
 unsigned char verificationTemps(void)
@@ -147,7 +157,7 @@ unsigned char verificationTemps(void)
 	}
 	
 	temps++;
-	relancerTimer(RECHARGE);
+//	relancerTimer(RECHARGE);
 	return 0;
 }
 
