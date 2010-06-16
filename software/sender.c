@@ -18,7 +18,9 @@ int main(void)
 {
 
 	while (1) {
-		emissionOctet('@');
+		//emissionOctet('@');
+		envoieHaut();
+		envoieBas();
 	}
 	return 0;
 }

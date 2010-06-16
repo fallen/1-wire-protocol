@@ -18,20 +18,24 @@ extern struct packet reception_buffer;
 int main(void)
 {
 
-
+//	DDRB |= (1 << 5);
 	uart_init();
 	puts("initialisation...\n\r");
 	init_mac();
 	puts("MAC layer initialized !\n\r");
-
+	
 	while (1) {
+//		PORTB |= (1 << 5);
+//		_delay_ms(500);
+//		PORTB &= ~(1 << 5);
+		puts("\r\n\r\nTEST TEST TEST TEST TEST\r\n\r\n");
 /*		puts("timer = ");
 		uart_send_char(TCNT1 >> 8);
 		uart_send_char( (unsigned char)TCNT1);
 		puts("\r\n");*/
-		puts("Received : ");
-		uart_send_char(reception_buffer.src);
-		puts("\n\r");
+//		puts("Received : ");
+//		uart_send_char(reception_buffer.src + 0x30);
+//		puts("\n\r");
 	}
 	
 	puts("=FIN=\n\r");

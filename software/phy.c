@@ -6,34 +6,91 @@
  */
 unsigned char mutex_ligne;
 
+void initPin(void) {
+
+	DDRD &= ~( 1<<DDD2 );
+	EICRA |= (1 << ISC01) | (1 << ISC00);
+}
+
+void init_phy(void) {
+	puts("init_phy();\r\n");
+	initPin();
+	puts("blah blah blah blah blah\n");
+	cli();
+	puts("blah blah blah blah blah 2222\n");
+	initTimer();
+	puts("blah blah blah blah blah 3333\n");
+	EIMSK = 1; // disables INT1 and enables INT0
+	PCICR = 0; // disables all the other PIN CHANGE interrupts
+	PCMSK0 = 0; // mask the pin change interrupts
+	PCMSK1 = 0; // idem
+	sei();
+}
+
+ISR(PCINT2_vect) {
+	puts("ROFLLLLLLLLLLLLLLLLLLLLLLLLLLLL PCINT2 vect\r\n");
+}
+
+ISR(PCINT1_vect) {
+	puts("ROFLLLLLLLLLLLLLLLLLLLLLLLLLLLL PCINT1 vect\r\n");
+}
+
+ISR(USART_TX_vect) {
+	puts("ROFLLLLLLLLLLLLLLLLLLLLLLLLLLLL USART TX vect\r\n");
+}
+
+ISR(USART_UDRE_vect) {
+	puts("ROFLLLLLLLLLLLLLLLLLLLLLLLLLLLLL USART UDRE vect\r\n");
+}
+
+ISR(USART_RX_vect) {
+	puts("ROFLLLLLLLLLLLLLLLLLLLLLLLLLLLLL USART RX vect\r\n");
+}
+
+
+ISR(PCINT0_vect) {
+	puts("ROFLLLLLLLLLLLLLLLLLLLLLLLLLLLLL PCINT0 vect\r\n");
+}
+
+ISR(INT1_vect) {
+	puts("ROFLLLLLLLLLLLLLLLLLLLLLLLLLLLL INT1 vect\r\n");
+}
+
 /**
  * Gestion de l'interruption du Timer0
  * @param TIMER0_OVF Vecteur d'interruption
  */
-
-void init_phy(void) {
-	initTimer();
-	puts("init_phy();\r\n");
-}
 
 ISR(TIMER1_OVF_vect)
 {
 	static unsigned char compteur = 0;
 	unsigned char reception = 0;
 	unsigned char parite_recue = 0;
+	static unsigned char nest = 0;
+
+	nest++;
+
+	puts("nest = ");
+	uart_send_char(0x30 + nest);
+	puts("\r\n");
 /*	puts("compteur = ");
 	uart_send_char(compteur + '0');
 	puts("\r\n");*/
-
-	if( !verificationTemps() || mutex_ligne)
+	//puts("reception = ");
+	//uart_send_char(reception);
+	//puts("\n\r");
+	if( !verificationTemps() ) //|| mutex_ligne)
 	{
-		//asm("reti");
+		//puts("TIMER1_OVF , temps != 5\r\n");
+		nest--;
+		asm("reti");
+		//puts("LOLILOL\r\n");
 	}
 	if( compteur == 8 )
 	{
-
+		puts("compteur = 8\r\n");
 		push_byte(reception);
-
+		//puts("apres push byte\r\n");
 /*		parite_recue = ( (PORTD & (1 << 2) ) >> 2 );
 		if( parite_recue == (xor(reception) >> 7) )
 		{
@@ -47,35 +104,45 @@ ISR(TIMER1_OVF_vect)
 	}
 	else if( compteur > 8 )
 	{
+		puts("RESET\r\n");
 		compteur = 0;
 		reception = 0;
 		mutex_ligne = 0;
+		TCCR1B &= ~(1 << CS10 );
+		TIMSK1 &= ~(1 << TOIE1);
+
 	}
 	else
 	{
+		puts("reception des infos\r\n");
 		mutex_ligne = 1;
 		reception |= ( ((PORTD & (1 << 2) ) >> 2 ) << compteur );
 		compteur++;
 	}
+	nest--;
+	puts("ON QUIT L'INTERRUPTION\n");
 }
 
 /**
  * Gestion de l'interruption sur front changeant de la pin INT0
  * @param PCINT0 Vecteur d'interruption
  */
-ISR(PCINT0_vect)
+ISR(INT0_vect)
 {
-	puts("LOL\r\n");
-	if( mutex_ligne )
-		reti();
+	EIFR |= (1 << INTF0); // Clears the External Interrupt Flag 0
+	puts("LOL LOL LOL LOL LOL LOL LOL\r\n");
+//	if( mutex_ligne )
+//		reti();
 	relancerTimer(RECHARGE);
 }
 
 unsigned char verificationTemps(void)
 {
-	unsigned char temps = 0;
-	if( temps == 5 )
+	static unsigned char temps = 0;
+	if( temps == 5 ) {
+		temps = 0;
 		return 42;
+	}
 	
 	temps++;
 	relancerTimer(RECHARGE);
@@ -86,6 +153,8 @@ void relancerTimer(int valeur)
 {
 	sreg = SREG;
 	cli();
+	TCCR1B |= (1 << CS10 );
+	TIMSK1 |= (1 << TOIE1);
 	TCNT1 = 65535-valeur;
 	SREG = sreg;
 }
@@ -102,16 +171,15 @@ void initTimer(void)
 	//Permet de lancer le timer
 	TCCR1B |= (1 << CS10 );
 
-	sei();
 }
 
 unsigned char emissionOctet( unsigned char octet)
 {
 	//compteur2 et parite2 sont des variables locales pour savoir quel est le numéro du bit qu'on envoie et la parite calculée.
 	unsigned char compteur2 = 0;
-	if( mutex_ligne )
-		return 0;
-	mutex_ligne = 1;
+//	if( mutex_ligne )
+//		return 0;
+//	mutex_ligne = 1;
 	DDRD |= ( 1<<DDD2 );
 	for( compteur2 = 0; compteur2 < 8; compteur2++)
 	{
@@ -137,15 +205,15 @@ unsigned char emissionOctet( unsigned char octet)
 			return 0;
 	}
 	DDRD &= ~( 1<<DDD2 );
-	mutex_ligne = 0;
+//	mutex_ligne = 0;
 	return 1;
 }
 
 
 unsigned char envoieHaut( void )
 {
-	if( mutex_ligne )
-		return 0;
+//	if( mutex_ligne )
+//		return 0;
 	PORTD |= (1 << PORTD2);
 	_delay_ms(7);
 	PORTD &= ~(1 << PORTD2);
@@ -156,8 +224,8 @@ unsigned char envoieHaut( void )
 
 unsigned char envoieBas( void )
 {
-	if( mutex_ligne )
-		return 0;
+//	if( mutex_ligne )
+//		return 0;
 	PORTD |= (1 << PORTD2);
 	_delay_ms(3);
 	PORTD &= ~(1 << PORTD2);
