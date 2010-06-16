@@ -46,6 +46,16 @@ unsigned char envoieHaut( void );
 unsigned char envoieBas( void );
 
 /**
+ * Mise à l'état par defaut de la ligne
+ */
+void pause(void);
+
+/**
+ * Impulsion de départ (mise à l'état 0 de la ligne)
+ */
+void depart(void);
+
+/**
  * Calcul de la parité
  * @return la parité
  */

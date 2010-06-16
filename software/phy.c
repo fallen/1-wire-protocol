@@ -29,34 +29,6 @@ void init_phy(void) {
 	sei();
 }
 
-ISR(PCINT2_vect) {
-	puts("ROFLLLLLLLLLLLLLLLLLLLLLLLLLLLL PCINT2 vect\r\n");
-}
-
-ISR(PCINT1_vect) {
-	puts("ROFLLLLLLLLLLLLLLLLLLLLLLLLLLLL PCINT1 vect\r\n");
-}
-
-ISR(USART_TX_vect) {
-	puts("ROFLLLLLLLLLLLLLLLLLLLLLLLLLLLL USART TX vect\r\n");
-}
-
-ISR(USART_UDRE_vect) {
-	puts("ROFLLLLLLLLLLLLLLLLLLLLLLLLLLLLL USART UDRE vect\r\n");
-}
-
-ISR(USART_RX_vect) {
-	puts("ROFLLLLLLLLLLLLLLLLLLLLLLLLLLLLL USART RX vect\r\n");
-}
-
-
-ISR(PCINT0_vect) {
-	puts("ROFLLLLLLLLLLLLLLLLLLLLLLLLLLLLL PCINT0 vect\r\n");
-}
-
-ISR(INT1_vect) {
-	puts("ROFLLLLLLLLLLLLLLLLLLLLLLLLLLLL INT1 vect\r\n");
-}
 
 /**
  * Gestion de l'interruption du Timer0
@@ -143,7 +115,7 @@ ISR(INT0_vect)
 	puts("LOL LOL LOL LOL LOL LOL LOL\r\n");
 //	if( mutex_ligne )
 //		reti();
-//	relancerTimer(RECHARGE);
+	relancerTimer(RECHARGE);
 	nest--;
 }
 
@@ -157,7 +129,7 @@ unsigned char verificationTemps(void)
 	}
 	
 	temps++;
-//	relancerTimer(RECHARGE);
+	relancerTimer(RECHARGE);
 	return 0;
 }
 
@@ -193,6 +165,7 @@ unsigned char emissionOctet( unsigned char octet)
 //		return 0;
 //	mutex_ligne = 1;
 	DDRD |= ( 1<<DDD2 );
+	depart();
 	for( compteur2 = 0; compteur2 < 8; compteur2++)
 	{
 		if( (octet &= (1 << compteur2)) )
@@ -216,6 +189,7 @@ unsigned char emissionOctet( unsigned char octet)
 		if( !(envoieBas()) )
 			return 0;
 	}
+	pause();
 	DDRD &= ~( 1<<DDD2 );
 //	mutex_ligne = 0;
 	return 1;
@@ -243,6 +217,18 @@ unsigned char envoieBas( void )
 	PORTD &= ~(1 << PORTD2);
 	_delay_ms(7);
 	return 1;
+}
+
+void pause(void)
+{
+	PORTD |= (1 << PORTD2);
+	_delay_ms(2);
+}
+
+void depart(void)
+{
+	PORTD &= ~(1 << PORTD2);
+	_delay_ms(2);
 }
 
 unsigned char xor( unsigned char octet )

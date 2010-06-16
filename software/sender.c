@@ -4,6 +4,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 #include "usart.h"
 #include "global.h"
 #include "mac.h"
@@ -19,8 +20,19 @@ int main(void)
 
 	while (1) {
 		//emissionOctet('@');
+		_delay_ms(1000);
+		depart();
 		envoieHaut();
 		envoieBas();
+		envoieHaut();
+		envoieBas();
+		envoieHaut();
+		envoieBas();
+		envoieHaut();
+		envoieBas();
+		envoieBas();
+		pause();
+
 	}
 	return 0;
 }
