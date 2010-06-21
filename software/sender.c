@@ -17,21 +17,24 @@
 
 int main(void)
 {
-
+	DDRD &= (1 << PORTD2);
 	while (1) {
 		//emissionOctet('@');
-		_delay_ms(1000);
-		depart();
-		envoieHaut();
+		PORTD |= (1 << PORTD2);
+		_delay_ms(2000);
+		PORTD &= ~(1 << PORTD2);
+		_delay_ms(2000);
+/*		depart();
 		envoieBas();
 		envoieHaut();
 		envoieBas();
-		envoieHaut();
+		envoieBas();
+		envoieBas();
+		envoieBas();
+		envoieBas();
 		envoieBas();
 		envoieHaut();
-		envoieBas();
-		envoieBas();
-		pause();
+		pause();*/
 
 	}
 	return 0;

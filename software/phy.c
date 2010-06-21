@@ -85,14 +85,18 @@ ISR(TIMER1_OVF_vect)
 		puts("RESET\r\n");
 		compteur = 0;
 		reception = 0;
-		mutex_ligne = 0;
+	//	mutex_ligne = 0;
 		TIMSK1 &= ~(1 << TOIE1);
 
 	}
 	else
 	{
 		puts("reception des infos\r\n");
-		mutex_ligne = 1;
+	//	mutex_ligne = 1;
+		if ( PORTD & (1 << 2) )
+			puts("recu 1\r\n");
+		else
+			puts("recu 0\r\n");
 		reception |= ( ((PORTD & (1 << 2) ) >> 2 ) << compteur );
 		compteur++;
 	}
@@ -168,7 +172,7 @@ unsigned char emissionOctet( unsigned char octet)
 	depart();
 	for( compteur2 = 0; compteur2 < 8; compteur2++)
 	{
-		if( (octet &= (1 << compteur2)) )
+		if( (octet & (1 << compteur2)) )
 		{
 			if( !(envoieHaut()) )
 				return 0;

@@ -33,9 +33,9 @@ int main(void)
 		uart_send_char(TCNT1 >> 8);
 		uart_send_char( (unsigned char)TCNT1);
 		puts("\r\n");*/
-		puts("Received : ");
+	/*	puts("Received : ");
 		uart_send_char(reception_buffer.src + 0x30);
-		puts("\n\r");
+		puts("\n\r"); */
 	}
 	
 	puts("=FIN=\n\r");
