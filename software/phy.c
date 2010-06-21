@@ -14,20 +14,32 @@ void initPin(void) {
 }
 
 void init_phy(void) {
-	puts("init_phy();\r\n");
 	initPin();
-	puts("blah blah blah blah blah\n");
 	cli();
-	puts("blah blah blah blah blah 2222\n");
 	initTimer();
-	puts("blah blah blah blah blah 3333\n");
-	EIMSK = (1 << INT0); // disables INT1 and enables INT0
+	EIMSK |= (1 << INT0); // disables INT1 and enables INT0
 	EIMSK &= ~(1 << INT1);
-	PCICR = 0; // disables all the other PIN CHANGE interrupts
-	PCMSK0 = 0; // mask the pin change interrupts
-	PCMSK1 = 0; // idem
+//	PCICR = 0; // disables all the other PIN CHANGE interrupts
+//	PCMSK0 = 0; // mask the pin change interrupts
+//	PCMSK1 = 0; // idem
 	sei();
 }
+/*
+ISR(TIMER1_OVF_vect) {
+
+	static unsigned int timer = 0;
+
+	if (timer < 1000)
+		timer++;
+	else {
+		puts("t");
+		timer = 0;
+	}
+
+	relancerTimer(RECHARGE);
+
+}
+*/
 
 
 /**
@@ -46,7 +58,6 @@ ISR(TIMER1_OVF_vect)
 //	TIMSK1 &= ~(1 << TOIE1);
 	if( !verificationTemps() ) //|| mutex_ligne)
 	{
-		puts("TIMER1_OVF , temps != 5\r\n");
 		//asm("reti");
 		//reti();
 		return;
@@ -54,8 +65,6 @@ ISR(TIMER1_OVF_vect)
 	}
 	if( compteur == 8 )
 	{
-		puts("compteur = 8\r\n");
-		push_byte(reception);
 		//puts("apres push byte\r\n");
 /*		parite_recue = ( (PORTD & (1 << 2) ) >> 2 );
 		if( parite_recue == (xor(reception) >> 7) )
@@ -70,7 +79,7 @@ ISR(TIMER1_OVF_vect)
 	}
 	else if( compteur > 8 )
 	{
-		puts("RESET\r\n");
+		push_byte(reception);
 		compteur = 0;
 		reception = 0;
 	//	mutex_ligne = 0;
@@ -79,16 +88,21 @@ ISR(TIMER1_OVF_vect)
 	}
 	else
 	{
-		puts("reception des infos\r\n");
 	//	mutex_ligne = 1;
-		if ( PORTD & (1 << 2) )
-			puts("recu 1\r\n");
+		if ( PORTD & ( 1 << PORTD5) )
+			PORTD &= ~( 1 << PORTD5);
 		else
-			puts("recu 0\r\n");
-		reception |= ( ((PORTD & (1 << 2) ) >> 2 ) << compteur );
+			PORTD |= (1 << PORTD5);
+
+/*		if ( PIND & (1 << PIND2) )
+			puts("r: 1\r\n");
+		else
+			puts("r: 0\r\n");*/
+		reception |= ( ((PIND & (1 << PIND2) ) >> PIND2 ) << compteur );
 		compteur++;
 	}
 }
+
 
 /**
  * Gestion de l'interruption sur front changeant de la pin INT0
@@ -96,8 +110,7 @@ ISR(TIMER1_OVF_vect)
  */
 ISR(INT0_vect)
 {
-	EIFR |= (1 << INTF0); // Clears the External Interrupt Flag 0
-	puts("LOL LOL LOL LOL LOL LOL LOL\r\n");
+//	EIFR |= (1 << INTF0); // Clears the External Interrupt Flag 0
 //	if( mutex_ligne )
 //		reti();
 	relancerTimer(RECHARGE);
@@ -120,11 +133,14 @@ unsigned char verificationTemps(void)
 
 void relancerTimer(int valeur)
 {
+//	unsigned int i = 65535 - valeur;
 	sreg = SREG;
 	cli();
 	TCCR1B |= (1 << CS10 );
 	TIMSK1 |= (1 << TOIE1);
-	TCNT1 = 65535-valeur;
+	TCNT1 = 65535 - valeur;
+//	TCNT1L = (unsigned char)(65535 - valeur);
+//	TCNT1H = (unsigned char)((65535 - valeur) >> 8);
 	SREG = sreg;
 }
 
@@ -138,7 +154,7 @@ void initTimer(void)
 	TIMSK1 |= (1 << TOIE1);
 	
 	//Permet de lancer le timer
-	TCCR1B |= (1 << CS10 );
+//	TCCR1B |= (1 << CS10 );
 
 }
 

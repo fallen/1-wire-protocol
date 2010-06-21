@@ -6,6 +6,10 @@ struct packet reception_buffer;
 
 struct light_packet rx_ring_buff[4];
 
+unsigned char received_byte = 0;
+
+unsigned char byte_has_been_received = 0;
+
 void init_mac(void) {
 
 	recv_index = 0;
@@ -20,6 +24,21 @@ inline void clear_ring_buffer_overflow(void) {
 
 void push_byte(unsigned char b) {
 
+/*	int i;
+
+	for (i = 0 ; i < 8 ; i++)
+		uart_send_char( ((b & (1 << i)) >> i)  + 0x30);
+
+	puts("\r\n");*/
+
+	byte_has_been_received = 1;
+	received_byte = b;
+
+/*	uart_send_char('R');
+	uart_send_char(':');
+	uart_send_char(b);
+	puts("\r\n");*/
+/*
 	if (recv_index >= current_packet_size || recv_index == MAX_PACKET_SIZE) {
 		reception_buffer.payload[recv_index - 3] = b;
 		if (ring_buffer_index == 3)
@@ -46,7 +65,7 @@ void push_byte(unsigned char b) {
 		}
 		recv_index++;
 	}
-
+*/
 }
 
 void copy_packet_to_rx_ring(void) {

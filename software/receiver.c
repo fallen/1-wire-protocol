@@ -15,27 +15,37 @@
 
 extern struct packet reception_buffer;
 
+extern unsigned char byte_has_been_received;
+extern unsigned char received_byte;
+
 int main(void)
 {
 
-//	DDRB |= (1 << 5);
+	DDRD |= (1 << 5);
+	PORTD &= ~(1 << 5);
 	uart_init();
-	puts("initialisation...\n\r");
+//	puts("initialisation...\n\r");
 	init_mac();
-	puts("MAC layer initialized !\n\r");
-	
+//	puts("MAC layer initialized !\n\r");
+	puts(".\r\n");	
 	while (1) {
 //		PORTB |= (1 << 5);
-		_delay_ms(1000);
 //		PORTB &= ~(1 << 5);
-		puts("\r\n\r\nTEST TEST TEST TEST TEST\r\n\r\n");
+//		puts("\r\nTEST\r\n");
 /*		puts("timer = ");
 		uart_send_char(TCNT1 >> 8);
 		uart_send_char( (unsigned char)TCNT1);
 		puts("\r\n");*/
-	/*	puts("Received : ");
-		uart_send_char(reception_buffer.src + 0x30);
-		puts("\n\r"); */
+/*		puts("R : ");
+		uart_send_char(reception_buffer.src);
+		puts("\n\r");*/
+
+		if (byte_has_been_received) {
+			byte_has_been_received = 0;
+			uart_send_char(received_byte);
+			uart_send_char('\r');
+			uart_send_char('\n');
+		}
 	}
 	
 	puts("=FIN=\n\r");
