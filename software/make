@@ -12,4 +12,4 @@ rm *.hex
 avr-objcopy -O ihex -R .eeprom main main.hex
 avr-objcopy -O ihex -R .eeprom receiver receiver.hex
 avr-objcopy -O ihex -R .eeprom sender sender.hex
-sudo avrdude -P /dev/ttyUSB0 -c stk500v1 -p m328p -b 57600 -D -U flash:w:${PROG}.hex
+sudo avrdude -P /dev/ttyUSB2 -c stk500v1 -p m328p -b 57600 -D -U flash:w:${PROG}.hex

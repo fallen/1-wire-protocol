@@ -20,11 +20,11 @@ int main(void)
 	DDRD &= (1 << PORTD2);
 	while (1) {
 		//emissionOctet('@');
-		PORTD |= (1 << PORTD2);
-		_delay_ms(2000);
-		PORTD &= ~(1 << PORTD2);
-		_delay_ms(2000);
-/*		depart();
+//		PORTD |= (1 << PORTD2);
+//		_delay_ms(2000);
+//		PORTD &= ~(1 << PORTD2);
+//		_delay_ms(2000);
+		depart();
 		envoieBas();
 		envoieHaut();
 		envoieBas();
@@ -34,7 +34,7 @@ int main(void)
 		envoieBas();
 		envoieBas();
 		envoieHaut();
-		pause();*/
+		pause();
 
 	}
 	return 0;

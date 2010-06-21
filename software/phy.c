@@ -38,27 +38,15 @@ void init_phy(void) {
 ISR(TIMER1_OVF_vect)
 {
 	static unsigned char compteur = 0;
-	unsigned char reception = 0;
+	static unsigned char reception = 0;
 	unsigned char parite_recue = 0;
-	static unsigned char nest = 0;
 	
 
-	nest++;
-	TCCR1B &= ~(1 << CS10 );
-	TIMSK1 &= ~(1 << TOIE1);
-	puts("timer nest = ");
-	uart_send_char(0x30 + nest);
-	puts("\r\n");
-/*	puts("compteur = ");
-	uart_send_char(compteur + '0');
-	puts("\r\n");*/
-	//puts("reception = ");
-	//uart_send_char(reception);
-	//puts("\n\r");
+//	TCCR1B &= ~(1 << CS10 );
+//	TIMSK1 &= ~(1 << TOIE1);
 	if( !verificationTemps() ) //|| mutex_ligne)
 	{
-		//puts("TIMER1_OVF , temps != 5\r\n");
-		nest--;
+		puts("TIMER1_OVF , temps != 5\r\n");
 		//asm("reti");
 		//reti();
 		return;
@@ -100,8 +88,6 @@ ISR(TIMER1_OVF_vect)
 		reception |= ( ((PORTD & (1 << 2) ) >> 2 ) << compteur );
 		compteur++;
 	}
-	nest--;
-	puts("ON QUIT L'INTERRUPTION\n");
 }
 
 /**
@@ -110,17 +96,11 @@ ISR(TIMER1_OVF_vect)
  */
 ISR(INT0_vect)
 {
-	static unsigned char nest = 0;
-	nest++;
-	puts("INT0 nest = ");
-	uart_send_char(0x30 + nest);
-	puts("\r\n");
-//	EIFR |= (1 << INTF0); // Clears the External Interrupt Flag 0
+	EIFR |= (1 << INTF0); // Clears the External Interrupt Flag 0
 	puts("LOL LOL LOL LOL LOL LOL LOL\r\n");
 //	if( mutex_ligne )
 //		reti();
 	relancerTimer(RECHARGE);
-	nest--;
 }
 
 unsigned char verificationTemps(void)
@@ -129,6 +109,7 @@ unsigned char verificationTemps(void)
 	if( temps == 5 )
 	{
 		temps = 0;
+		TCCR1B &= ~(1 << CS10 );
 		return 42;
 	}
 	

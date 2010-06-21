@@ -26,9 +26,9 @@ int main(void)
 	
 	while (1) {
 //		PORTB |= (1 << 5);
-//		_delay_ms(500);
+		_delay_ms(1000);
 //		PORTB &= ~(1 << 5);
-//		puts("\r\n\r\nTEST TEST TEST TEST TEST\r\n\r\n");
+		puts("\r\n\r\nTEST TEST TEST TEST TEST\r\n\r\n");
 /*		puts("timer = ");
 		uart_send_char(TCNT1 >> 8);
 		uart_send_char( (unsigned char)TCNT1);
