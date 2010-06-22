@@ -63,10 +63,13 @@ ISR(TIMER1_OVF_vect)
 		{
 			tempo++;
 			relancerTimer(RECHARGE);
-			return;
+		} else {
+			tempo = 0;
+			if ( !(PIND & (1 << PIND2)) )
+				return;
+			compteur = 0;
 		}
-		tempo = 0;
-		compteur = 0;
+		return;
 	}
 	if( !verificationTemps() ) //|| mutex_ligne)
 	{
