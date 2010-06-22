@@ -49,13 +49,25 @@ ISR(TIMER1_OVF_vect) {
 
 ISR(TIMER1_OVF_vect)
 {
-	static unsigned char compteur = 0;
+	static unsigned char compteur = 100;
+	static uint8_t tempo = 0;
 	static unsigned char reception = 0;
 	unsigned char parite_recue = 0;
 	
 
 //	TCCR1B &= ~(1 << CS10 );
 //	TIMSK1 &= ~(1 << TOIE1);
+	if( compteur == 100)
+	{
+		if( tempo != 7 )
+		{
+			tempo++;
+			relancerTimer(RECHARGE);
+			return;
+		}
+		tempo = 0;
+		compteur = 0;
+	}
 	if( !verificationTemps() ) //|| mutex_ligne)
 	{
 		//asm("reti");
@@ -77,10 +89,10 @@ ISR(TIMER1_OVF_vect)
 		}*/
 		compteur++;
 	}
-	else if( compteur > 8 )
+	else if( compteur == 9 )
 	{
 		push_byte(reception);
-		compteur = 0;
+		compteur = 100;
 		reception = 0;
 	//	mutex_ligne = 0;
 		TIMSK1 &= ~(1 << TOIE1);
@@ -119,7 +131,7 @@ ISR(INT0_vect)
 unsigned char verificationTemps(void)
 {
 	static unsigned char temps = 0;
-	if( temps == 5 )
+	if( temps == 4 )
 	{
 		temps = 0;
 		TCCR1B &= ~(1 << CS10 );
@@ -230,6 +242,10 @@ void depart(void)
 {
 	PORTD &= ~(1 << PORTD2);
 	_delay_ms(2);
+	PORTD |= (1 << PORTD2);
+	_delay_ms(9);
+	PORTD &= ~(1 << PORTD2);
+	_delay_ms(1);
 }
 
 unsigned char xor( unsigned char octet )

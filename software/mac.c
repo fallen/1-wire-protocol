@@ -24,20 +24,20 @@ inline void clear_ring_buffer_overflow(void) {
 
 void push_byte(unsigned char b) {
 
-/*	int i;
+	int i;
 
 	for (i = 0 ; i < 8 ; i++)
 		uart_send_char( ((b & (1 << i)) >> i)  + 0x30);
 
-	puts("\r\n");*/
+	puts("\r\n");
 
-	byte_has_been_received = 1;
+/*	byte_has_been_received = 1;
 	received_byte = b;
-
-/*	uart_send_char('R');
+*/
+	uart_send_char('R');
 	uart_send_char(':');
 	uart_send_char(b);
-	puts("\r\n");*/
+	puts("\r\n");
 /*
 	if (recv_index >= current_packet_size || recv_index == MAX_PACKET_SIZE) {
 		reception_buffer.payload[recv_index - 3] = b;
