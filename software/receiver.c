@@ -43,9 +43,11 @@ int main(void)
 		if (byte_has_been_received) {
 			byte_has_been_received = 0;
 			uart_send_char(received_byte);
-			uart_send_char('\r');
-			uart_send_char('\n');
-		}
+		} else
+			puts("_");
+
+			_delay_ms(500);
+
 	}
 	
 	puts("=FIN=\n\r");

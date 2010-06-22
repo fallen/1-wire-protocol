@@ -59,13 +59,13 @@ ISR(TIMER1_OVF_vect)
 //	TIMSK1 &= ~(1 << TOIE1);
 	if( compteur == 100)
 	{
-		if( tempo != 7 )
+		if( tempo <= 0 )
 		{
 			tempo++;
-			relancerTimer(RECHARGE);
+			relancerTimer(32000);
 		} else {
 			tempo = 0;
-			if ( !(PIND & (1 << PIND2)) )
+			if ( (PIND & (1 << PIND2)) )
 				return;
 			compteur = 0;
 		}
@@ -78,7 +78,7 @@ ISR(TIMER1_OVF_vect)
 		return;
 		//puts("LOLILOL\r\n");
 	}
-	if( compteur == 8 )
+	if( compteur == 3 )
 	{
 		//puts("apres push byte\r\n");
 /*		parite_recue = ( (PORTD & (1 << 2) ) >> 2 );
@@ -92,10 +92,12 @@ ISR(TIMER1_OVF_vect)
 		}*/
 		compteur++;
 	}
-	else if( compteur == 9 )
+	else if( compteur == 4 )
 	{
+		puts("P");
 		push_byte(reception);
 		compteur = 100;
+//		compteur = 0;
 		reception = 0;
 	//	mutex_ligne = 0;
 		TIMSK1 &= ~(1 << TOIE1);
@@ -104,15 +106,10 @@ ISR(TIMER1_OVF_vect)
 	else
 	{
 	//	mutex_ligne = 1;
-		if ( PORTD & ( 1 << PORTD5) )
-			PORTD &= ~( 1 << PORTD5);
+		if ( PIND & (1 << PIND2) )
+			puts("1");
 		else
-			PORTD |= (1 << PORTD5);
-
-/*		if ( PIND & (1 << PIND2) )
-			puts("r: 1\r\n");
-		else
-			puts("r: 0\r\n");*/
+			puts("0");
 		reception |= ( ((PIND & (1 << PIND2) ) >> PIND2 ) << compteur );
 		compteur++;
 	}
