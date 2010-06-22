@@ -235,17 +235,17 @@ unsigned char envoieBas( void )
 void pause(void)
 {
 	PORTD |= (1 << PORTD2);
-	_delay_ms(2);
+	_delay_ms(20);
 }
 
 void depart(void)
 {
 	PORTD &= ~(1 << PORTD2);
-	_delay_ms(2);
+	_delay_ms(10);
 	PORTD |= (1 << PORTD2);
-	_delay_ms(9);
-	PORTD &= ~(1 << PORTD2);
 	_delay_ms(1);
+	PORTD &= ~(1 << PORTD2);
+	_delay_ms(9);
 }
 
 unsigned char xor( unsigned char octet )
