@@ -15,28 +15,27 @@
 //sudo avrdude -P /dev/ttyUSB0 -c stk500v1 -p m328p -b 57600 -U flash:w:main.hex
 
 
+extern struct packet reception_buffer;
+
+extern unsigned char byte_has_been_received;
+extern unsigned char received_byte;
+
 int main(void)
 {
+	uart_init();
+	init_mac();
+//	EIMSK &= ~(1 << INT0);
 	PORTD |= (1 << PORTD2);
 	DDRD |= (1 << PORTD2);
-	while (1) {
-//		emissionOctet('@');
-//		PORTD |= (1 << PORTD2);
-//		_delay_ms(2000);
-//		PORTD &= ~(1 << PORTD2);
-//		_delay_ms(2000);
-		depart();
-		envoieBas();
-		envoieBas();
-		envoieBas();
-		envoieBas();
-		envoieBas();
-		envoieBas();
-		envoieHaut();
-		envoieBas();
-		envoieHaut();
-		pause();
-		_delay_ms(2000);
+	while (1)
+	{
+		if (byte_has_been_received)
+		{
+			byte_has_been_received = 0;
+			uart_send_char(received_byte);
+		}
+		emissionOctet('@');
+		_delay_ms(50);
 	}
 	return 0;
 }

@@ -19,7 +19,7 @@ unsigned char verificationTemps(void);
  * Fonction servant à relancer le timer 0 avec les bonnes valeurs.
  * @param valeur Valeur à recharger dans le timer
  */
-void relancerTimer(int valeur);
+void relancerTimer(uint16_t valeur);
 
 /**
  * initTimer permet d'intialiser le timer 1 pour le traitement de la couche physique
@@ -31,19 +31,19 @@ void initTimer(void);
  * @param octet est l'octet que l'on veut emettre
  * @return retourne un code annonçant l'état de l'émission (0 = échoué, autre pour un succès)
  */
-unsigned char emissionOctet( unsigned char octet);
+void emissionOctet( uint8_t octet);
 
 /**
  * Envoie d'un bit logique haut
  * @return code retour de la fonction pour s'assurer de sont bon fonctionnement
  */
-unsigned char envoieHaut( void );
+void envoieHaut( void );
 
 /**
  * Envoie d'un bit logique bas
  * @return code retour de la fonction pour s'assurer de sont bon fonctionnement
  */
-unsigned char envoieBas( void );
+void envoieBas( void );
 
 /**
  * Mise à l'état par defaut de la ligne
@@ -59,6 +59,17 @@ void depart(void);
  * Calcul de la parité
  * @return la parité
  */
-unsigned char xor( unsigned char octet );
+uint8_t xor( uint8_t octet );
+
+/**
+ * Sample le port D 2
+ * @return il retourne 7 zéro suivi de la valeur sur le port D 2
+ */
+uint8_t sample(void);
+
+/**
+ * Stop le timer
+ */
+void stop_timer();
 
 #endif

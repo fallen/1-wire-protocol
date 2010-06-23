@@ -21,8 +21,6 @@ extern unsigned char received_byte;
 int main(void)
 {
 
-	DDRD |= (1 << 5);
-	PORTD &= ~(1 << 5);
 	uart_init();
 //	puts("initialisation...\n\r");
 	init_mac();

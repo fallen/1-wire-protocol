@@ -22,12 +22,8 @@ inline void clear_ring_buffer_overflow(void) {
 	ring_buffer_overflow = 0;
 }
 
-void push_byte(unsigned char b) {
-
-	byte_has_been_received = 1;
-	received_byte = b;
-
-/*
+void push_byte(unsigned char b)
+{
 	if (recv_index >= current_packet_size || recv_index == MAX_PACKET_SIZE) {
 		reception_buffer.payload[recv_index - 3] = b;
 		if (ring_buffer_index == 3)
@@ -54,7 +50,7 @@ void push_byte(unsigned char b) {
 		}
 		recv_index++;
 	}
-*/
+
 }
 
 void copy_packet_to_rx_ring(void) {

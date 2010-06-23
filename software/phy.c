@@ -4,7 +4,7 @@
 /**
  * Mutex de prise de la ligne
  */
-unsigned char mutex_ligne;
+uint8_t mutex_ligne;
 
 void initPin(void) {
 
@@ -13,7 +13,9 @@ void initPin(void) {
 	EICRA |= (1 << ISC01) | (1 << ISC00);
 }
 
-void init_phy(void) {
+void init_phy(void)
+{
+	mutex_ligne = 0;
 	initPin();
 	cli();
 	initTimer();
@@ -24,23 +26,6 @@ void init_phy(void) {
 //	PCMSK1 = 0; // idem
 	sei();
 }
-/*
-ISR(TIMER1_OVF_vect) {
-
-	static unsigned int timer = 0;
-
-	if (timer < 1000)
-		timer++;
-	else {
-		puts("t");
-		timer = 0;
-	}
-
-	relancerTimer(RECHARGE);
-
-}
-*/
-
 
 /**
  * Gestion de l'interruption du Timer0
@@ -49,71 +34,95 @@ ISR(TIMER1_OVF_vect) {
 
 ISR(TIMER1_OVF_vect)
 {
-	static unsigned char compteur = 100;
-	static uint8_t tempo = 0;
-	static unsigned char reception = 0;
-	unsigned char parite_recue = 0;
-	
+	static uint8_t compteur = 0;							//permet de savoir quel est le bit qu'on attend de recevoir
+	static uint8_t timer_is_ok =0;							//permet de mesure le temps
+	static uint8_t reception = 0; 							//Octet de réception
+	static uint8_t parite = 0;							//Bit de parite recu
 
-//	TCCR1B &= ~(1 << CS10 );
-//	TIMSK1 &= ~(1 << TOIE1);
-	if( compteur == 100)
+	
+	/*
+	 * Est ce que nous attendons le bit de start ?
+	 * on sample donc à 2 millisecondes.
+	 * Si ce n'est pas le cas, on passe à la suite.
+	 */
+	if( compteur == 0 )
 	{
-		if( tempo <= 0 )
+		if( timer_is_ok == 1 )
 		{
-			tempo++;
-			relancerTimer(32000);
-		} else {
-			tempo = 0;
-			if ( (PIND & (1 << PIND2)) )
-				return;
-			compteur = 0;
-		}
-		return;
-	}
-	if( !verificationTemps() ) //|| mutex_ligne)
-	{
-		//asm("reti");
-		//reti();
-		return;
-		//puts("LOLILOL\r\n");
-	}
-	if( compteur == 3 )
-	{
-		//puts("apres push byte\r\n");
-/*		parite_recue = ( (PORTD & (1 << 2) ) >> 2 );
-		if( parite_recue == (xor(reception) >> 7) )
-		{
-			push_byte(reception);
+			if( !(sample()) )
+			{
+				mutex_ligne = 1;
+				compteur++;
+			}
+			timer_is_ok = 0;
+			stop_timer();
 		}
 		else
 		{
-			
-		}*/
-		compteur++;
+			timer_is_ok++;
+			relancerTimer(RECHARGE);
+		}
 	}
-	else if( compteur == 4 )
+	else if( compteur == 10 )
 	{
-		puts("P");
-		push_byte(reception);
-		compteur = 100;
-//		compteur = 0;
+		compteur = 0;
 		reception = 0;
-	//	mutex_ligne = 0;
-		TIMSK1 &= ~(1 << TOIE1);
-
+		timer_is_ok = 0;
+		mutex_ligne = 0;
+		stop_timer();
 	}
 	else
 	{
-	//	mutex_ligne = 1;
-		if ( PIND & (1 << PIND2) )
-			puts("1");
+		/*
+		* On vérifie qu'il s'est bien écoulé 5ms
+		* C'est à dire que l'on rappel 4 fois cette fonction
+		*/
+		if( !(timer_is_ok == 4) )
+		{
+			timer_is_ok++;
+			relancerTimer(RECHARGE);
+		}
 		else
-			puts("0");
-		reception |= ( ((PIND & (1 << PIND2) ) >> PIND2 ) << compteur );
-		compteur++;
+		{
+			if( compteur < 9 )						//On reçoit les bits de data de l'octet
+			{
+				reception |= ( sample() << (8 - compteur) );		//On shift de manière à recevoir le MSB en premier, et le LSB en dernier.
+				compteur++;
+				stop_timer();
+			}
+			else								//On reçoit le bit de parité
+			{
+				if( sample() == xor( reception ))
+				{
+					push_byte(reception);
+				}
+				else
+				{
+					puts("gogole\r\n");
+				}
+				stop_timer();
+				compteur++;
+			}
+			timer_is_ok = 0;						//On reset la variable timer_is_ok
+		}
 	}
+	return;
 }
+
+uint8_t sample(void)
+{
+	return (( PIND & (1 << PIND2) ) >> PIND2 );
+}
+
+void stop_timer()
+{
+	TCCR1B &= ~(1 << CS10 );
+}
+
+/**
+ * Gestion de l'interruption du Timer0
+ * @param TIMER0_OVF Vecteur d'interruption
+ */
 
 
 /**
@@ -125,6 +134,7 @@ ISR(INT0_vect)
 //	EIFR |= (1 << INTF0); // Clears the External Interrupt Flag 0
 //	if( mutex_ligne )
 //		reti();
+	TCNT1 = 0;
 	relancerTimer(RECHARGE);
 }
 
@@ -143,14 +153,17 @@ unsigned char verificationTemps(void)
 	return 0;
 }
 
-void relancerTimer(int valeur)
+void relancerTimer(uint16_t valeur)
 {
 //	unsigned int i = 65535 - valeur;
+	uint16_t timer;
 	sreg = SREG;
 	cli();
+	stop_timer();
+	timer = TCNT1;
+	TCNT1 = 65535 - valeur + timer;
 	TCCR1B |= (1 << CS10 );
 	TIMSK1 |= (1 << TOIE1);
-	TCNT1 = 65535 - valeur;
 //	TCNT1L = (unsigned char)(65535 - valeur);
 //	TCNT1H = (unsigned char)((65535 - valeur) >> 8);
 	SREG = sreg;
@@ -170,66 +183,49 @@ void initTimer(void)
 
 }
 
-unsigned char emissionOctet( unsigned char octet)
+void emissionOctet( uint8_t octet)
 {
-	//compteur2 et parite2 sont des variables locales pour savoir quel est le numéro du bit qu'on envoie et la parite calculée.
-	unsigned char compteur2 = 0;
-//	if( mutex_ligne )
-//		return 0;
-//	mutex_ligne = 1;
-	DDRD |= ( 1<<DDD2 );
-	depart();
-	for( compteur2 = 0; compteur2 < 8; compteur2++)
+	int8_t compteur = 0;
+	if( mutex_ligne == 0 )
 	{
-		if( (octet & (1 << compteur2)) )
+		EIMSK &= ~(1 << INT0);
+		mutex_ligne = 1;
+		DDRD |= ( 1<<DDD2 );
+		depart();
+		for( compteur = 7; compteur >= 0; compteur--)
 		{
-			if( !(envoieHaut()) )
-				return 0;
+			if( (octet & (1 << compteur)) )
+				envoieHaut();
+			else
+			envoieBas();
 		}
+		if( (xor(octet)) )
+			envoieHaut();
 		else
-		{
-			if( !(envoieBas()) )
-				return 0;
-		}
+			envoieBas();
+		pause();
+		DDRD &= ~( 1<<DDD2 );
+		mutex_ligne = 0;
+		EIMSK |= (1 << INT0);
 	}
-	if( (xor(octet)) )
-	{
-		if( !(envoieHaut()) )
-			return 0;
-	}
-	else
-	{
-		if( !(envoieBas()) )
-			return 0;
-	}
-	pause();
-	DDRD &= ~( 1<<DDD2 );
-//	mutex_ligne = 0;
-	return 1;
 }
 
 
-unsigned char envoieHaut( void )
+void envoieHaut( void )
 {
-//	if( mutex_ligne )
-//		return 0;
 	PORTD |= (1 << PORTD2);
 	_delay_ms(7);
 	PORTD &= ~(1 << PORTD2);
 	_delay_ms(3);
-	return 1;
 }
 
 
-unsigned char envoieBas( void )
+void envoieBas( void )
 {
-//	if( mutex_ligne )
-//		return 0;
 	PORTD |= (1 << PORTD2);
 	_delay_ms(3);
 	PORTD &= ~(1 << PORTD2);
 	_delay_ms(7);
-	return 1;
 }
 
 void pause(void)
@@ -248,17 +244,16 @@ void depart(void)
 	_delay_ms(9);
 }
 
-unsigned char xor( unsigned char octet )
+uint8_t xor( uint8_t octet )
 {
-	unsigned char parite2=0;
-	parite2 ^= octet;
-	parite2 ^= (octet << 1);
-	parite2 ^= (octet << 2);
-	parite2 ^= (octet << 3);
-	parite2 ^= (octet << 4);
-	parite2 ^= (octet << 5);
-	parite2 ^= (octet << 6);
-	parite2 ^= (octet << 7);
-	parite2 &= 0x80;
-	return parite2;
+	uint8_t parite = octet;
+	parite ^= (octet << 1);
+	parite ^= (octet << 2);
+	parite ^= (octet << 3);
+	parite ^= (octet << 4);
+	parite ^= (octet << 5);
+	parite ^= (octet << 6);
+	parite ^= (octet << 7);
+	parite &= 0x80;
+	return ( parite >> 7 );
 }
