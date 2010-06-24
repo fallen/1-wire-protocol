@@ -17,8 +17,8 @@ wire data_wire;
 assign data_wire = data | reset_sync;
 
 
-transceiver tr1 (clock, reset, data_wire, RXbyte, TXbyte, busy, done);
-mac mac1(clock, reset, );
+//transceiver tr1 (clock, reset, data_wire, RXbyte, TXbyte, busy, done);
+//mac mac1(clock, reset, );
 
 
 
