@@ -35,7 +35,6 @@ int main(void)
 			uart_send_char(received_byte);
 		}
 		emissionOctet('@');
-		_delay_ms(50);
 	}
 	return 0;
 }

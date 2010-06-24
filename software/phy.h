@@ -5,6 +5,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include "global.h"
+#include "mac.h"
 
 #define RECHARGE 16000
 
