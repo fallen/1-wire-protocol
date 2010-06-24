@@ -98,7 +98,7 @@ ISR(TIMER1_OVF_vect)
 				}
 				else
 				{
-					puts("gogole\r\n");
+					detection_erreur(PARITY_ERROR);
 				}
 				stop_timer();
 				compteur++;

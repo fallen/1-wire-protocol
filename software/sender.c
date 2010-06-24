@@ -29,13 +29,11 @@ int main(void)
 	DDRD |= (1 << PORTD2);
 	while (1)
 	{
-		if (byte_has_been_received)
-		{
-			byte_has_been_received = 0;
-			uart_send_char(received_byte);
-		}
 		emissionOctet('@');
-		_delay_ms(50);
+		emissionOctet('%');
+		emissionOctet(0x11);
+		emissionOctet('A');
+		_delay_ms(1000);
 	}
 	return 0;
 }
