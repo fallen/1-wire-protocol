@@ -1,5 +1,4 @@
 #include "phy.h"
-#include "mac.h"
 
 /**
  * Mutex de prise de la ligne
@@ -98,7 +97,7 @@ ISR(TIMER1_OVF_vect)
 				}
 				else
 				{
-					puts("gogole\r\n");
+					mauvaise_parite();
 				}
 				stop_timer();
 				compteur++;

@@ -2,6 +2,7 @@
 #include "phy.h"
 #include "global.h"
 
+
 struct packet reception_buffer;
 
 struct light_packet rx_ring_buff[4];
@@ -24,7 +25,8 @@ inline void clear_ring_buffer_overflow(void) {
 
 void push_byte(unsigned char b)
 {
-	if (recv_index >= current_packet_size || recv_index == MAX_PACKET_SIZE) {
+	if(recv_index >= current_packet_size || recv_index == MAX_PACKET_SIZE)
+	{
 		reception_buffer.payload[recv_index - 3] = b;
 		if (ring_buffer_index == 3)
 			ring_buffer_overflow = 1;
@@ -33,10 +35,16 @@ void push_byte(unsigned char b)
 		copy_packet_to_rx_ring();
 		current_packet_size = MAX_PACKET_SIZE + 1;
 		recv_index = 0;
-	} else {
-		switch (recv_index) {
+	}
+	else
+	{
+		switch (recv_index)
+		{
 			case 0:
-				reception_buffer.src = b;
+				if (b >> 5 == 5) // est-ce un début de trame ?
+					reception_buffer.src = b;
+				else
+					return;
 				break;
 			case 1:
 				reception_buffer.dest = b;
@@ -50,18 +58,32 @@ void push_byte(unsigned char b)
 		}
 		recv_index++;
 	}
-
 }
 
-void copy_packet_to_rx_ring(void) {
+void mauvaise_parite(void)
+{
+	recv_index = 0;
+	erreur_sur_paquet();
+}
+
+void erreur_sur_paquet(void)
+{
+	puts("oups, erreur sur un paquet\r\n");
+}
+
+void copy_packet_to_rx_ring(void)
+{
 	unsigned char i;
 
-	rx_ring_buff[ring_buffer_index].src = reception_buffer.src;
-	rx_ring_buff[ring_buffer_index].verif = reception_buffer.verif;
+	if( reception_buffer.dest == ADDRESS_SRC )
+	{
+		rx_ring_buff[ring_buffer_index].src = reception_buffer.src;
+		rx_ring_buff[ring_buffer_index].verif = reception_buffer.verif;
 
-	for (i = 0 ; i < current_packet_size ;  i++) {
-		rx_ring_buff[ring_buffer_index].payload[i] = reception_buffer.payload[i];
-
+		for (i = 0 ; i < current_packet_size ;  i++)
+		{
+			rx_ring_buff[ring_buffer_index].payload[i] = reception_buffer.payload[i];
+		}
 	}
 }
 
@@ -69,4 +91,33 @@ unsigned char rx_buffer_overflow(void) {
 	unsigned char temp = ring_buffer_overflow;
 	clear_ring_buffer_overflow();
 	return temp;
+}
+
+void send( uint8_t address_dest, uint8_t data[], uint8_t taille)
+{
+	uint8_t checksum_taille = 0;
+	uint8_t i;
+	
+	checksum_taille = (taille << 4);
+	checksum_taille |= calcul_checksum(data,taille);
+	
+	emissionOctet(ADDRESS_SRC);
+	emissionOctet(address_dest);
+	emissionOctet(checksum_taille);
+	for( i=0; i < taille; i++)
+	{
+		emissionOctet(data[i]);
+	}
+}
+
+uint8_t calcul_checksum( uint8_t data[], uint8_t taille)
+{
+	uint8_t i;
+	uint8_t checksum = 0;
+	for( i=0; i<taille; i++)
+	{
+		checksum += data[i];
+	}
+	checksum += (checksum >> 4);
+	return (checksum & 0x0f);
 }
