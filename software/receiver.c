@@ -24,14 +24,12 @@ int main(void)
 	init_mac();
 	while (1)
 	{
-		if(byte_has_been_received == 1)
+		if( byte_has_been_received == 1 )
 		{
-			uart_send_char('&');
 			byte_has_been_received = 0;
 			uart_send_char(received_byte);
 		}
-		//uart_send_char('"');
-		_delay_ms(1);
 	}
 	return 0;
 }
+
