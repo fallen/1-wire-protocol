@@ -30,8 +30,8 @@ int main(void)
 			byte_has_been_received = 0;
 			uart_send_char(received_byte);
 		}
-		//uart_send_char('"');
-		_delay_ms(1);
+		
+		_delay_ms(500);
 	}
 	return 0;
 }

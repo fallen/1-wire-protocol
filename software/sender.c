@@ -24,9 +24,6 @@ int main(void)
 {
 	uart_init();
 	init_mac();
-//	EIMSK &= ~(1 << INT0);
-	PORTD |= (1 << PORTD2);
-	DDRD |= (1 << PORTD2);
 	while (1)
 	{
 		emissionOctet('@');
