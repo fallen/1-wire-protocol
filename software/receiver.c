@@ -22,17 +22,16 @@ int main(void)
 {
 	uart_init();
 	init_mac();
-//	EIMSK &= ~(1 << INT0);
-	PORTD |= (1 << PORTD2);
-	DDRD |= (1 << PORTD2);
 	while (1)
 	{
-		if (byte_has_been_received)
+		if(byte_has_been_received == 1)
 		{
+			uart_send_char('&');
 			byte_has_been_received = 0;
 			uart_send_char(received_byte);
 		}
-		_delay_ms(500);
+		//uart_send_char('"');
+		_delay_ms(1);
 	}
 	return 0;
 }

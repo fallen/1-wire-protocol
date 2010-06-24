@@ -205,6 +205,7 @@ void emissionOctet( uint8_t octet)
 			envoieBas();
 		pause();
 		DDRD &= ~( 1<<DDD2 );
+		PORTD |= ( 1 << PORTD2 );
 		mutex_ligne = 0;
 		EIMSK |= (1 << INT0);
 	}

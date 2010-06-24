@@ -27,8 +27,10 @@ inline void clear_ring_buffer_overflow(void) {
 
 void push_byte(unsigned char b)
 {
+	//uart_send_char(b);
 	received_byte = b;
 	byte_has_been_received = 1;
+	//uart_send_char(received_byte);
 	/*if (recv_index >= current_packet_size || recv_index == MAX_PACKET_SIZE)
 	{
 		reception_buffer.payload[recv_index - 3] = b;
