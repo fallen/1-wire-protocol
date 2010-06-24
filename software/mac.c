@@ -11,10 +11,13 @@ unsigned char received_byte = 0;
 
 unsigned char byte_has_been_received = 0;
 
+uint8_t pointeur_buffer_lecture = 0;
+uint8_t pointeur_buffer_ecriture = 0;
+
 void init_mac(void) {
 
 	recv_index = 0;
-	ring_buffer_index = 0;
+	pointeur_buffer_ecriture = 0;
 	current_packet_size = MAX_PACKET_SIZE + 1;
 	init_phy();
 }
@@ -25,14 +28,17 @@ inline void clear_ring_buffer_overflow(void) {
 
 void push_byte(unsigned char b)
 {
-	if(recv_index >= current_packet_size || recv_index == MAX_PACKET_SIZE)
+	received_byte = b;
+	byte_has_been_received = 1;
+	/*if (recv_index >= current_packet_size || recv_index == MAX_PACKET_SIZE)
 	{
 		reception_buffer.payload[recv_index - 3] = b;
-		if (ring_buffer_index == 3)
+		if (pointeur_buffer_ecriture == 3)
 			ring_buffer_overflow = 1;
-		ring_buffer_index++;
-		ring_buffer_index %= 4;
-		copy_packet_to_rx_ring();
+		pointeur_buffer_ecriture++;
+		pointeur_buffer_ecriture %= 4;
+		//copy_packet_to_rx_ring();
+		byte_has_been_received = 1;
 		current_packet_size = MAX_PACKET_SIZE + 1;
 		recv_index = 0;
 	}
@@ -66,6 +72,8 @@ void mauvaise_parite(void)
 	erreur_sur_paquet();
 }
 
+*/
+
 void erreur_sur_paquet(void)
 {
 	puts("oups, erreur sur un paquet\r\n");
@@ -75,15 +83,11 @@ void copy_packet_to_rx_ring(void)
 {
 	unsigned char i;
 
-	if( reception_buffer.dest == ADDRESS_SRC )
-	{
-		rx_ring_buff[ring_buffer_index].src = reception_buffer.src;
-		rx_ring_buff[ring_buffer_index].verif = reception_buffer.verif;
+	rx_ring_buff[pointeur_buffer_ecriture].src = reception_buffer.src;
+	rx_ring_buff[pointeur_buffer_ecriture].verif = reception_buffer.verif;
 
-		for (i = 0 ; i < current_packet_size ;  i++)
-		{
-			rx_ring_buff[ring_buffer_index].payload[i] = reception_buffer.payload[i];
-		}
+	for (i = 0 ; i < current_packet_size ;  i++) {
+		rx_ring_buff[pointeur_buffer_ecriture].payload[i] = reception_buffer.payload[i];
 	}
 }
 
@@ -120,4 +124,16 @@ uint8_t calcul_checksum( uint8_t data[], uint8_t taille)
 	}
 	checksum += (checksum >> 4);
 	return (checksum & 0x0f);
+
+void detection_erreur( uint8_t erreur)
+{
+	puts("erreur lors de la reception\r\n");
+	if( erreur == PARITY_ERROR )
+		puts("erreur de parite\r\n");
+	else if( erreur == FULL_PAYLOAD_ERROR )
+		puts("erreur car le ring buffer est plein\r\n");
+	else if( erreur == CHECKSUM_ERROR )
+		puts("erreur de checksum\r\n");
+	else
+		puts("autre erreur\r\n");
 }

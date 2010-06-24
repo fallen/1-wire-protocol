@@ -97,7 +97,7 @@ ISR(TIMER1_OVF_vect)
 				}
 				else
 				{
-					mauvaise_parite();
+					detection_erreur(PARITY_ERROR);
 				}
 				stop_timer();
 				compteur++;

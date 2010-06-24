@@ -20,34 +20,19 @@ extern unsigned char received_byte;
 
 int main(void)
 {
-
 	uart_init();
-//	puts("initialisation...\n\r");
 	init_mac();
-//	puts("MAC layer initialized !\n\r");
-	puts(".\r\n");	
-	while (1) {
-//		PORTB |= (1 << 5);
-//		PORTB &= ~(1 << 5);
-//		puts("\r\nTEST\r\n");
-/*		puts("timer = ");
-		uart_send_char(TCNT1 >> 8);
-		uart_send_char( (unsigned char)TCNT1);
-		puts("\r\n");*/
-/*		puts("R : ");
-		uart_send_char(reception_buffer.src);
-		puts("\n\r");*/
-
-		if (byte_has_been_received) {
+//	EIMSK &= ~(1 << INT0);
+	PORTD |= (1 << PORTD2);
+	DDRD |= (1 << PORTD2);
+	while (1)
+	{
+		if (byte_has_been_received)
+		{
 			byte_has_been_received = 0;
 			uart_send_char(received_byte);
-		} else
-			puts("_");
-
-			_delay_ms(500);
-
+		}
+		_delay_ms(500);
 	}
-	
-	puts("=FIN=\n\r");
 	return 0;
 }

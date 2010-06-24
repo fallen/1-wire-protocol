@@ -8,6 +8,10 @@
 #define MAX_PACKET_SIZE 15
 #define ADDRESS_SRC 172
 
+#define PARITY_ERROR 1
+#define FULL_PAYLOAD_ERROR 2
+#define CHECKSUM_ERROR 3
+
 void init_mac(void);
 
 void push_byte(unsigned char);
@@ -45,8 +49,6 @@ uint8_t calcul_checksum( uint8_t data[16], uint8_t taille);
 unsigned char rx_buffer_overflow(void);
 
 unsigned char recv_index;
-
-unsigned char ring_buffer_index;
 
 unsigned char current_packet_size;
 
