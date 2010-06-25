@@ -37,7 +37,11 @@ int main(void)
 		emissionOctet('A');
 		emissionOctet('B');*/
 
-	_delay_ms(1000);
+		emissionOctet(0xA0);
+		emissionOctet('&');
+		emissionOctet(0x22);
+		emissionOctet('B');
+		emissionOctet('B');
 	}
 	return 0;
 }

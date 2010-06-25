@@ -25,9 +25,12 @@ int main(void)
 {
 	uint8_t i;
 	struct light_packet lp;
-
+	uint8_t src;
+	uint8_t taille;
+	unsigned char datas[16];
 	uart_init();
 	init_mac();
+	_delay_ms(10000);
 	while (1)
 	{
 /*		if( byte_has_been_received == 1 )
@@ -41,11 +44,13 @@ int main(void)
 				uart_send_char(reception_buffer.payload[i]);
 			}
 		}*/
-		recv(&lp);
-		uart_send_char(lp.src);
-		uart_send_char(lp.size);
-		for (i = 0 ; i < lp.size ; i++)
-			uart_send_char(lp.payload[i]);
+		//recv(&lp);
+		recv(&src, &taille, datas);
+		for (i = 0 ; i < taille ; i++)
+		{
+			uart_send_char(datas[i]);
+		}
+		print("\r\n");
 	}
 	return 0;
 }
