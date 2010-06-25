@@ -17,8 +17,6 @@
 
 extern struct packet reception_buffer;
 
-extern unsigned char byte_has_been_received;
-extern unsigned char received_byte;
 
 int main(void)
 {
@@ -31,14 +29,12 @@ int main(void)
 		data[1] = '@';
 		send( ADDRESS_SRC, data, 2);
 		
-		_delay_ms(1000);
-		
 		data[0] = 'D';
 		data[1] = 'C';
 		send( 0x82, data, 2);
 
 		
-		_delay_ms(1000);
+		
 		
 		data[0] = 'H';
 		data[1] = 'e';

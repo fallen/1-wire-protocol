@@ -18,8 +18,6 @@ extern struct packet reception_buffer;
 
 extern uint8_t pointeur_buffer_lecture;
 extern uint8_t pointeur_buffer_ecriture;
-extern unsigned char byte_has_been_received;
-extern unsigned char received_byte;
 
 int main(void)
 {

@@ -17,6 +17,9 @@ uint8_t recv_index = 0;
 
 uint8_t error = 0;
 
+unsigned char received_byte = 0 ;
+unsigned char has_been_received = 0;
+
 uint8_t current_packet_size = MAX_PACKET_SIZE + 1;
 
 uint8_t can_write(void) {
@@ -74,6 +77,15 @@ void init_mac(void) {
 
 inline void clear_ring_buffer_overflow(void) {
 	ring_buffer_overflow = 0;
+}
+
+void push_byte2( uint8_t b)
+{
+	print("super\r\n");
+	uart_send_char(b);
+	received_byte = b;
+	has_been_received = 1;
+	uart_send_char(received_byte);
 }
 
 void push_byte(unsigned char b)
