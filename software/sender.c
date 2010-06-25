@@ -28,24 +28,24 @@ int main(void)
 	{
 		uint8_t data[16];
 		data[0] = 'A';
-		data[1] = 'B';
+		data[1] = '@';
 		send( ADDRESS_SRC, data, 2);
 		
-		/*data[0] = 'D';
+		_delay_ms(1000);
+		
+		data[0] = 'D';
 		data[1] = 'C';
-		send( 0x82, data, 2);*/
+		send( 0x82, data, 2);
 
-/*		emissionOctet('@');
-		emissionOctet('%');
-		emissionOctet(0x21);
-		emissionOctet('A');
-		emissionOctet('B');*/
-
-		emissionOctet(ADDRESS_SRC);
-		emissionOctet(ADDRESS_SRC);
-		emissionOctet(0x22);
-		emissionOctet('B');
-		emissionOctet('B');
+		
+		_delay_ms(1000);
+		
+		data[0] = 'H';
+		data[1] = 'e';
+		data[2] = 'l';
+		data[3] = 'l';
+		data[4] = 'o';
+		send( ADDRESS_SRC, data, 5);
 	}
 	return 0;
 }

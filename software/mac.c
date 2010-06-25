@@ -40,8 +40,6 @@ void inc_write_pointer(void) {
 
 void inc_read_pointer(void) {
 
-	print("r");
-
 	pointeur_buffer_lecture++;
 	pointeur_buffer_lecture %= 4;
 	if (pointeur_buffer_lecture == 0)
