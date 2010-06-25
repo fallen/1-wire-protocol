@@ -15,6 +15,8 @@ uint8_t pointeur_overflow = 0;
 
 uint8_t recv_index = 0;
 
+uint8_t error = 0;
+
 uint8_t current_packet_size = MAX_PACKET_SIZE + 1;
 
 uint8_t can_write(void) {
@@ -47,14 +49,20 @@ void inc_read_pointer(void) {
 }
 
 //void recv(struct light_packet *lp) {
-void recv (uint8_t *src, uint8_t *taille, unsigned char *datas) {
+int8_t recv (uint8_t *src, uint8_t *taille, unsigned char *datas) {
 	uint8_t i;
-	while (!can_read());
+	while (!can_read() & !error);
+	if( error )
+	{
+		error = 0;
+		return -1;
+	}
 	*src = rx_ring_buff[pointeur_buffer_lecture].src;
 	*taille = rx_ring_buff[pointeur_buffer_lecture].size;
 	for (i = 0 ; i < *taille ; i++)
 		datas[i] = rx_ring_buff[pointeur_buffer_lecture].payload[i];
 	inc_read_pointer();
+	return 1;
 }
 
 void init_mac(void) {
@@ -113,20 +121,33 @@ void detection_erreur( uint8_t erreur)
 		print("erreur car le ring buffer est plein\r\n");
 	else if( erreur == CHECKSUM_ERROR )
 		print("erreur de checksum\r\n");
+	else if( erreur == ADDRESS_ERROR )
+		print("drop pour cause d'adresse\r\n");
 	else
 		print("autre erreur\r\n");
+	error = 1;
 }
 
 void copy_packet_to_rx_ring(void) {
 	uint8_t i;
 	if (can_write())
 	{
-		rx_ring_buff[pointeur_buffer_ecriture].src = reception_buffer.src;
-		rx_ring_buff[pointeur_buffer_ecriture].size = current_packet_size;
-		for (i = 0 ; i < current_packet_size ;  i++) {
-			rx_ring_buff[pointeur_buffer_ecriture].payload[i] = reception_buffer.payload[i];
+		if( reception_buffer.dest == ADDRESS_SRC )
+		{
+			if( calcul_checksum(reception_buffer.payload, current_packet_size) == (reception_buffer.verif & 0x0f))
+			{
+				rx_ring_buff[pointeur_buffer_ecriture].src = reception_buffer.src;
+				rx_ring_buff[pointeur_buffer_ecriture].size = current_packet_size;
+				for (i = 0 ; i < current_packet_size ;  i++) {
+					rx_ring_buff[pointeur_buffer_ecriture].payload[i] = reception_buffer.payload[i];
+				}
+				inc_write_pointer();
+			}
+			else
+				detection_erreur(CHECKSUM_ERROR);
 		}
-		inc_write_pointer();
+		else
+			detection_erreur(ADDRESS_ERROR);
 	}
 	else
 	{
@@ -141,3 +162,23 @@ unsigned char rx_buffer_overflow(void) {
 	return temp;
 }
 
+void send( uint8_t address_dest, uint8_t data[16], uint8_t taille)
+{
+	uint8_t i;
+	emissionOctet(ADDRESS_SRC);
+	emissionOctet(address_dest);
+	emissionOctet((taille << 4 ) | calcul_checksum(data,taille));
+	for( i=0; i< taille; i++)
+		emissionOctet(data[i]);
+}
+
+
+uint8_t calcul_checksum( uint8_t data[16], uint8_t taille)
+{
+	uint8_t i;
+	uint8_t resultat=0;
+	for( i=0; i< taille;i++)
+		resultat += data[i];
+	resultat += (resultat >> 4);
+	return (resultat & 0x0f);
+}

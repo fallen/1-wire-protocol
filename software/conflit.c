@@ -33,12 +33,15 @@ int main(void)
 	_delay_ms(10000);
 	while (1)
 	{
-		if( recv(&src, &taille, datas) > 0)
+		emissionOctet(0xA0);
+		emissionOctet('&');
+		emissionOctet(0x22);
+		emissionOctet('B');
+		emissionOctet('B');
+		recv(&src, &taille, datas);
+		for (i = 0 ; i < taille ; i++)
 		{
-			for (i = 0 ; i < taille ; i++)
-			{
-				uart_send_char(datas[i]);
-			}
+			uart_send_char(datas[i]);
 		}
 		print("\r\n");
 	}

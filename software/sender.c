@@ -26,10 +26,14 @@ int main(void)
 	init_mac();
 	while (1)
 	{
-		emissionOctet(0xA0);
-		emissionOctet('%');
-		emissionOctet(0x11);
-		emissionOctet('A');
+		uint8_t data[16];
+		data[0] = 'A';
+		data[1] = 'B';
+		send( ADDRESS_SRC, data, 2);
+		
+		/*data[0] = 'D';
+		data[1] = 'C';
+		send( 0x82, data, 2);*/
 
 /*		emissionOctet('@');
 		emissionOctet('%');
@@ -37,8 +41,8 @@ int main(void)
 		emissionOctet('A');
 		emissionOctet('B');*/
 
-		emissionOctet(0xA0);
-		emissionOctet('&');
+		emissionOctet(ADDRESS_SRC);
+		emissionOctet(ADDRESS_SRC);
 		emissionOctet(0x22);
 		emissionOctet('B');
 		emissionOctet('B');

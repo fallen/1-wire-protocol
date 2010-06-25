@@ -6,11 +6,12 @@
 
 
 #define MAX_PACKET_SIZE 15
-#define ADDRESS_SRC 172
+#define ADDRESS_SRC 0xA0
 
 #define PARITY_ERROR 1
 #define FULL_PAYLOAD_ERROR 2
 #define CHECKSUM_ERROR 3
+#define ADDRESS_ERROR 4
 
 void init_mac(void);
 
