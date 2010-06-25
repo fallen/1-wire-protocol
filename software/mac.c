@@ -6,17 +6,65 @@ struct packet reception_buffer;
 
 struct light_packet rx_ring_buff[4];
 
-unsigned char received_byte = 0;
-
-unsigned char byte_has_been_received = 0;
-
 uint8_t pointeur_buffer_lecture = 0;
 uint8_t pointeur_buffer_ecriture = 0;
+
+uint8_t pointeur_overflow = 0;
+
+uint8_t recv_index = 0;
+
+uint8_t current_packet_size = MAX_PACKET_SIZE + 1;
+
+uint8_t can_write(void) {
+
+	return  ( ( !pointeur_overflow && (pointeur_buffer_lecture <= pointeur_buffer_ecriture) ) || (pointeur_overflow && (pointeur_buffer_ecriture < pointeur_buffer_lecture) ) );
+
+}
+
+uint8_t can_read(void) {
+
+	return ( ( (!pointeur_overflow) && (pointeur_buffer_ecriture > pointeur_buffer_lecture)) || pointeur_overflow);
+
+}
+
+void inc_write_pointer(void) {
+
+	print("w");
+
+	pointeur_buffer_ecriture++;
+	pointeur_buffer_ecriture %= 4;
+	if (pointeur_buffer_ecriture == 0)
+		pointeur_overflow = ! pointeur_overflow;
+}
+
+void inc_read_pointer(void) {
+
+	print("r");
+
+	pointeur_buffer_lecture++;
+	pointeur_buffer_lecture %= 4;
+	if (pointeur_buffer_lecture == 0)
+		pointeur_overflow = ! pointeur_overflow;
+}
+
+struct light_packet recv(struct light_packet *lp) {
+	uint8_t i, size;
+	print("R");
+	while (!can_read());
+	lp->src = rx_ring_buff[pointeur_buffer_lecture].src;
+	size = rx_ring_buff[pointeur_buffer_lecture].size;
+	lp->size = size;
+	for (i = 0 ; i < size ; i++)
+		lp->payload[i] = rx_ring_buff[pointeur_buffer_lecture].payload[i];
+
+	inc_read_pointer();
+}
 
 void init_mac(void) {
 
 	recv_index = 0;
 	pointeur_buffer_ecriture = 0;
+	pointeur_buffer_lecture = 0;
 	current_packet_size = MAX_PACKET_SIZE + 1;
 	init_phy();
 }
@@ -27,19 +75,12 @@ inline void clear_ring_buffer_overflow(void) {
 
 void push_byte(unsigned char b)
 {
-	//uart_send_char(b);
-	received_byte = b;
-	byte_has_been_received = 1;
-	//uart_send_char(received_byte);
-	/*if (recv_index >= current_packet_size || recv_index == MAX_PACKET_SIZE)
+	print("[");
+	uart_send_char(b);
+	if ( recv_index >= (current_packet_size + 3) || recv_index == MAX_PACKET_SIZE)
 	{
 		reception_buffer.payload[recv_index - 3] = b;
-		if (pointeur_buffer_ecriture == 3)
-			ring_buffer_overflow = 1;
-		pointeur_buffer_ecriture++;
-		pointeur_buffer_ecriture %= 4;
-		//copy_packet_to_rx_ring();
-		byte_has_been_received = 1;
+		copy_packet_to_rx_ring();
 		current_packet_size = MAX_PACKET_SIZE + 1;
 		recv_index = 0;
 	}
@@ -48,7 +89,10 @@ void push_byte(unsigned char b)
 		switch (recv_index)
 		{
 			case 0:
-				reception_buffer.src = b;
+				if ((b >> 5) == 5)
+					reception_buffer.src = b;
+				else
+					return;
 				break;
 			case 1:
 				reception_buffer.dest = b;
@@ -61,19 +105,44 @@ void push_byte(unsigned char b)
 				reception_buffer.payload[recv_index - 3] = b;
 		}
 		recv_index++;
-	}*/
+	}
 
 }
 
+void detection_erreur( uint8_t erreur)
+{
+	print("erreur lors de la reception\r\n");
+	if( erreur == PARITY_ERROR )
+		print("erreur de parite\r\n");
+	else if( erreur == FULL_PAYLOAD_ERROR )
+		print("erreur car le ring buffer est plein\r\n");
+	else if( erreur == CHECKSUM_ERROR )
+		print("erreur de checksum\r\n");
+	else
+		print("autre erreur\r\n");
+}
+
 void copy_packet_to_rx_ring(void) {
-	unsigned char i;
-
-	rx_ring_buff[pointeur_buffer_ecriture].src = reception_buffer.src;
-	rx_ring_buff[pointeur_buffer_ecriture].verif = reception_buffer.verif;
-
-	for (i = 0 ; i < current_packet_size ;  i++) {
-		rx_ring_buff[pointeur_buffer_ecriture].payload[i] = reception_buffer.payload[i];
-
+	uint8_t i;
+	if (can_write()) {	
+		rx_ring_buff[pointeur_buffer_ecriture].src = reception_buffer.src;
+		uart_send_char('{');
+		uart_send_char(rx_ring_buff[pointeur_buffer_ecriture].src);
+		print("}={");
+		uart_send_char(reception_buffer.src);
+		print("}{");
+		uart_send_char(rx_ring_buff[pointeur_buffer_ecriture].size);
+		print("}={");
+		uart_send_char(current_packet_size);
+		uart_send_char('}');
+		rx_ring_buff[pointeur_buffer_ecriture].size = current_packet_size;
+		for (i = 0 ; i < current_packet_size ;  i++) {
+			rx_ring_buff[pointeur_buffer_ecriture].payload[i] = reception_buffer.payload[i];
+		}
+		inc_write_pointer();
+	} else {
+		detection_erreur(FULL_PAYLOAD_ERROR);
+		ring_buffer_overflow = 1;
 	}
 }
 
@@ -83,15 +152,3 @@ unsigned char rx_buffer_overflow(void) {
 	return temp;
 }
 
-void detection_erreur( uint8_t erreur)
-{
-	puts("erreur lors de la reception\r\n");
-	if( erreur == PARITY_ERROR )
-		puts("erreur de parite\r\n");
-	else if( erreur == FULL_PAYLOAD_ERROR )
-		puts("erreur car le ring buffer est plein\r\n");
-	else if( erreur == CHECKSUM_ERROR )
-		puts("erreur de checksum\r\n");
-	else
-		puts("autre erreur\r\n");
-}

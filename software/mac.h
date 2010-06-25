@@ -17,8 +17,5 @@ void copy_packet_to_rx_ring(void);
 
 unsigned char rx_buffer_overflow(void);
 
-unsigned char recv_index;
-
-unsigned char current_packet_size;
 
 #endif

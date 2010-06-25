@@ -17,7 +17,7 @@ struct packet {
 
 struct light_packet {
 	unsigned char src;
-	unsigned char verif;
+	unsigned char size;
 	unsigned char payload[16];
 };
 

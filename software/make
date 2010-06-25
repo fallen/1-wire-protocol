@@ -1,16 +1,16 @@
 #!/bin/sh
 rm *.o
 rm *.hex
-avr-gcc -O -mmcu=atmega328p -DF_CPU=16000000 -c main.c
-avr-gcc -mmcu=atmega328p -DF_CPU=16000000 -c receiver.c
-avr-gcc -O -mmcu=atmega328p -DF_CPU=16000000 -c sender.c
-avr-gcc -O -mmcu=atmega328p -DF_CPU=16000000 -c usart.c
-avr-gcc -O -mmcu=atmega328p -DF_CPU=16000000 -c mac.c
-avr-gcc -O -mmcu=atmega328p -DF_CPU=16000000 -c phy.c
-avr-gcc -O -mmcu=atmega328p -DF_CPU=16000000 -o main phy.o main.o mac.o usart.o
-avr-gcc -O -mmcu=atmega328p -DF_CPU=16000000 -o receiver phy.o receiver.o mac.o usart.o
-avr-gcc -O -mmcu=atmega328p -DF_CPU=16000000 -o sender phy.o sender.o mac.o usart.o
+avr-gcc  -mmcu=atmega328p -DF_CPU=16000000 -c main.c
+avr-gcc  -mmcu=atmega328p -DF_CPU=16000000 -c receiver.c
+avr-gcc  -mmcu=atmega328p -DF_CPU=16000000 -c sender.c
+avr-gcc  -mmcu=atmega328p -DF_CPU=16000000 -c usart.c
+avr-gcc  -mmcu=atmega328p -DF_CPU=16000000 -c mac.c
+avr-gcc  -mmcu=atmega328p -DF_CPU=16000000 -c phy.c
+avr-gcc  -mmcu=atmega328p -DF_CPU=16000000 -o main phy.o main.o mac.o usart.o
+avr-gcc  -mmcu=atmega328p -DF_CPU=16000000 -o receiver phy.o receiver.o mac.o usart.o
+avr-gcc  -mmcu=atmega328p -DF_CPU=16000000 -o sender phy.o sender.o mac.o usart.o
 avr-objcopy -O ihex -R .eeprom main main.hex
 avr-objcopy -O ihex -R .eeprom receiver receiver.hex
 avr-objcopy -O ihex -R .eeprom sender sender.hex
-sudo avrdude -P /dev/ttyUSB2 -c stk500v1 -p m328p -b 57600 -D -U flash:w:${PROG}.hex
+sudo avrdude -P /dev/ttyUSB1 -c stk500v1 -p m328p -b 57600 -D -U flash:w:${PROG}.hex

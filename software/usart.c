@@ -2,7 +2,7 @@
 #include <avr/interrupt.h>
 #include "usart.h"
 
-void puts(const char *string) {
+void print(const char *string) {
 	unsigned char i;
 	for (i = 0 ; string[i] != '\0' ; i++)
 		uart_send_char(string[i]);
