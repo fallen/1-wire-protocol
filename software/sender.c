@@ -24,16 +24,24 @@ int main(void)
 {
 	uart_init();
 	init_mac();
-//	EIMSK &= ~(1 << INT0);
-	PORTD |= (1 << PORTD2);
-	DDRD |= (1 << PORTD2);
 	while (1)
 	{
-		emissionOctet('@');
+		emissionOctet(0xA0);
 		emissionOctet('%');
 		emissionOctet(0x11);
 		emissionOctet('A');
-		_delay_ms(1000);
+
+/*		emissionOctet('@');
+		emissionOctet('%');
+		emissionOctet(0x21);
+		emissionOctet('A');
+		emissionOctet('B');*/
+
+		emissionOctet(0xA0);
+		emissionOctet('&');
+		emissionOctet(0x22);
+		emissionOctet('B');
+		emissionOctet('B');
 	}
 	return 0;
 }

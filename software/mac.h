@@ -48,8 +48,5 @@ uint8_t calcul_checksum( uint8_t data[16], uint8_t taille);
 
 unsigned char rx_buffer_overflow(void);
 
-unsigned char recv_index;
-
-unsigned char current_packet_size;
 
 #endif

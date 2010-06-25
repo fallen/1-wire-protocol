@@ -20,9 +20,6 @@ void init_phy(void)
 	initTimer();
 	EIMSK |= (1 << INT0); // disables INT1 and enables INT0
 	EIMSK &= ~(1 << INT1);
-//	PCICR = 0; // disables all the other PIN CHANGE interrupts
-//	PCMSK0 = 0; // mask the pin change interrupts
-//	PCMSK1 = 0; // idem
 	sei();
 }
 
@@ -130,9 +127,6 @@ void stop_timer()
  */
 ISR(INT0_vect)
 {
-//	EIFR |= (1 << INTF0); // Clears the External Interrupt Flag 0
-//	if( mutex_ligne )
-//		reti();
 	TCNT1 = 0;
 	relancerTimer(RECHARGE);
 }
@@ -154,7 +148,6 @@ unsigned char verificationTemps(void)
 
 void relancerTimer(uint16_t valeur)
 {
-//	unsigned int i = 65535 - valeur;
 	uint16_t timer;
 	sreg = SREG;
 	cli();
@@ -163,8 +156,6 @@ void relancerTimer(uint16_t valeur)
 	TCNT1 = 65535 - valeur + timer;
 	TCCR1B |= (1 << CS10 );
 	TIMSK1 |= (1 << TOIE1);
-//	TCNT1L = (unsigned char)(65535 - valeur);
-//	TCNT1H = (unsigned char)((65535 - valeur) >> 8);
 	SREG = sreg;
 }
 
@@ -177,9 +168,6 @@ void initTimer(void)
 	//Permet d'activer l'interruption timer 1
 	TIMSK1 |= (1 << TOIE1);
 	
-	//Permet de lancer le timer
-//	TCCR1B |= (1 << CS10 );
-
 }
 
 void emissionOctet( uint8_t octet)
@@ -204,6 +192,7 @@ void emissionOctet( uint8_t octet)
 			envoieBas();
 		pause();
 		DDRD &= ~( 1<<DDD2 );
+		PORTD |= ( 1 << PORTD2 );
 		mutex_ligne = 0;
 		EIMSK |= (1 << INT0);
 	}

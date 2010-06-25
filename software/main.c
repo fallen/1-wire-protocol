@@ -19,9 +19,9 @@ int main(void)
 
 
 	uart_init();
-	puts("initialisation...\n\r");
+	print("initialisation...\n\r");
 	
 	
-	puts("=FIN=\n\r");
+	print("=FIN=\n\r");
 	return 0;
 }

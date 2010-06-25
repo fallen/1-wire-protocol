@@ -15,24 +15,43 @@
 
 extern struct packet reception_buffer;
 
+
+extern uint8_t pointeur_buffer_lecture;
+extern uint8_t pointeur_buffer_ecriture;
 extern unsigned char byte_has_been_received;
 extern unsigned char received_byte;
 
 int main(void)
 {
+	uint8_t i;
+	struct light_packet lp;
+	uint8_t src;
+	uint8_t taille;
+	unsigned char datas[16];
 	uart_init();
 	init_mac();
-//	EIMSK &= ~(1 << INT0);
-	PORTD |= (1 << PORTD2);
-	DDRD |= (1 << PORTD2);
+	_delay_ms(10000);
 	while (1)
 	{
-		if (byte_has_been_received)
+/*		if( byte_has_been_received == 1 )
 		{
+			uint8_t i;
 			byte_has_been_received = 0;
-			uart_send_char(received_byte);
+			uart_send_char(reception_buffer.src);
+			uart_send_char(reception_buffer.dest);
+			uart_send_char(reception_buffer.verif);
+			for (i = 0 ; i < (reception_buffer.verif | 0x0f) ; i++) {
+				uart_send_char(reception_buffer.payload[i]);
+			}
+		}*/
+		//recv(&lp);
+		recv(&src, &taille, datas);
+		for (i = 0 ; i < taille ; i++)
+		{
+			uart_send_char(datas[i]);
 		}
-		_delay_ms(500);
+		print("\r\n");
 	}
 	return 0;
 }
+
