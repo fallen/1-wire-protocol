@@ -1,0 +1,326 @@
+\documentclass[slidetop,11pt]{beamer}
+%
+% Ces deux lignes à décommenter pour sortir 
+% le texte en classe article
+%\documentclass[class=article,11pt,a4paper]{beamer}
+%\usepackage{beamerbasearticle}
+
+% Packages pour les français
+%
+\usepackage[T1]{fontenc} 
+\usepackage[latin1]{inputenc}
+\usepackage[frenchb]{babel}
+% pour un pdf lisible à l'écran si on ne dispose pas 
+% des fontes cmsuper ou lmodern
+\usepackage{lmodern}
+\usepackage{graphicx}
+%\usepackage{aeguill}
+
+% Pour afficher le pdf en plein ecran
+% (commenté pour imprimer les transparents et pour les tests)
+\hypersetup{pdfpagemode=FullScreen}
+
+% ------------------------------------------------
+%-----------   styles pour beamer   --------------
+% ------------------------------------------------
+%
+% ------------- Choix des couleurs ---------------
+%\xdefinecolor{fondtitre}{rgb}{0.20,0.43,0.09}  % vert fonce
+% la même d'une autre manière
+\definecolor{fondtitre}{HTML}{336E17}
+
+%\xdefinecolor{coultitre}{rgb}{0.41,0.05,0.05}  % marron
+% la même d'une autre manière
+\definecolor{coultitre}{RGB}{105,13,13}
+
+\xdefinecolor{fondtexte}{rgb}{1,0.95,0.86}     % ivoire
+
+% Redéfinit la couleur de fond pour imprimer sur transparents
+%\xdefinecolor{fondtexte}{rgb}{1,1,1}     % blanc
+
+% commande differente pour les couleurs nommées - de base
+%\colorlet{coultexte}{black} 
+
+% -------------- Fioritures de style -------------
+% Fait afficher l'ensemble du frame 
+% en peu lisible (gris clair) dès l'ouverture
+\beamertemplatetransparentcovered
+
+
+% Supprimer les icones de navigation (pour les transparents)
+%\setbeamertemplate{navigation symbols}{}
+
+% Mettre les icones de navigation en mode vertical (pour projection)
+%\setbeamertemplate{navigation symbols}[vertical]
+
+% ------------ Choix des thèmes ------------------
+\usetheme{Warsaw}
+
+%\useoutertheme{default}
+%\useinnertheme{default}
+%\useinnertheme[shadow=true]{rounded}
+% Définition de boites en couleur spécifiques
+% première méthode
+\setbeamercolor{bas}{fg=coultitre, bg=fondtitre!40}
+\setbeamercolor{haut}{fg=fondtitre!40, bg=coultitre}
+% deuxième méthode
+\beamerboxesdeclarecolorscheme{clair}{fondtitre!70}{coultitre!20}
+\beamerboxesdeclarecolorscheme{compar}{coultitre!70}{fondtitre!20}
+
+% insérer le nombre de pages
+\logo{\insertframenumber/\inserttotalframenumber}
+
+%------------ fin style beamer -------------------
+
+% Faire apparaître un sommaire avant chaque section
+% \AtBeginSection[]{
+%   \begin{frame}
+%   \frametitle{Plan}
+%   \medskip
+%   %%% affiche en début de chaque section, les noms de sections et
+%   %%% noms de sous-sections de la section en cours.
+%   \small \tableofcontents[currentsection, hideothersubsections]
+%   \end{frame} 
+% }
+
+% ----------- Contenu de la page de titre --------
+\title{Projet de recherche et développement}
+\subtitle{Protocole de communication entre FPGA et microcontrôleur sur 1 fil}
+\author{Jérémy Cheynet et Yann Sionneau}
+\institute{Télécom SudParis}
+%\date{\oldstylenums{\today}}
+\date{26 juin 2010}
+% ------------------------------------------------
+% -------------   Début document   ---------------
+% ------------------------------------------------
+\begin{document}
+%--------- Écriture de la page de titre ----------
+% avec la commande frame simplifiée
+\frame{\titlepage}
+%
+\part{Les pages} 
+%------------------ Sommaire ---------------
+\begin{frame}{Sommaire}
+%  \small \tableofcontents[hideallsubsections,sections={1-3}]
+  \small \tableofcontents[hideallsubsections]
+\end{frame} 
+%
+%***************************************
+%******     I Les pages          *******
+%***************************************
+% Sommaire local. En deux colonnes
+%\begin{frame}{Plan}
+%\begin{columns}[t]
+%\begin{column}{6.5cm}
+%\tableofcontents[sections={1-3}]
+%\end{column}
+%\begin{column}{3.5cm}
+%\tableofcontents[sections={4-7}]
+%\end{column}
+%\end{columns}
+%\end{frame}
+
+\section{Les objectifs}
+
+
+%\begin{frame}
+%\frametitle{Objectifs}
+%\tableofcontents[sections=1]
+%\end{frame}
+
+%\subsection{Pourquoi les crypto devices ?}
+
+% avec l'environnement frame
+	\begin{frame}
+		\frametitle{Objectifs}
+			%Les algorithmes de cryptage/hashage software : \newline
+		\begin{itemize}
+			\item Protocole de communication entre microcontrôleur et FPGA
+			\item Protocole sur 1 fil
+			\item Protocole asynchrone
+			\item Resynchronisation sur chaque bit
+		\end{itemize}
+	\end{frame}
+
+\section{Les spécifications}
+
+	\subsection{Matériel utilisé}
+
+		\begin{frame}
+			\frametitle{Le matériel}
+			\begin{block}{Microcontrôleur}
+				ATmega328 sur carte arduino\newline
+				\includegraphics[height=1.5cm]{image/arduino.jpg}
+			\end{block}
+			\begin{block}{FPGA}
+				Spartan3E sur carte Basys2\newline
+				\includegraphics[height=1.5cm]{image/basys2.jpg}
+			\end{block}
+		\end{frame}
+
+	\subsection{Les couches d'abstraction}
+
+		\begin{frame}
+			\frametitle{La couche physique}
+			\framesubtitle{Les bits}
+			\begin{block}{Différents bits}
+				\begin{itemize}
+					\item Le bit de start
+					\item Le bit "haut" logique
+					\item Le bit "bas" logique
+					\item Le bit de stop
+				\end{itemize}
+			\end{block}
+			\begin{block}{Définition des états logiques}
+				\includegraphics[width=4cm]{image/chronogramme-2bits-new.png}
+			\end{block}
+		\end{frame}
+
+		\begin{frame}
+			\frametitle{La couche physique}
+			\framesubtitle{La trame}
+			\begin{block}{Trame de 10 bits}
+				\begin{itemize}
+					\item Le bit de start
+					\item 8 bits de data
+					\item le bit de parité
+					\item le bit de stop
+				\end{itemize}
+			\end{block}
+			\begin{block}{schéma d'un paquet}
+				\includegraphics[width=8cm]{image/chronogramme-octet.png}
+			\end{block}
+		\end{frame}
+
+		\begin{frame}
+			\frametitle{La couche de transport}
+			\begin{block}{Au moins 4 octets}
+				\begin{itemize}
+					\item L'adresse source du paquet (un octet)
+					\item L'adresse de destination du paquet (un octet)
+					\item La taille et le checksum (un octet)
+					\begin{itemize}
+						\item La taille sur 4 bit
+						\item le checksum sur 4 bit
+					\end{itemize}
+					\item Les datas (entre 1 et 16 octets)
+				\end{itemize}
+			\end{block}
+		\end{frame}
+
+		\begin{frame}
+			\frametitle{La couche applicative}
+			\begin{block}{Fonction de haut niveau}
+				\begin{itemize}
+					\item Fonction d'envoie d'un paquet prenant en paramètre :
+					\begin{itemize}
+						\item L'adresse de destination
+						\item La taille des datas
+						\item Les datas
+					\end{itemize}
+					\item Fonction de réception d'un paquet (aller interroger le buffer)
+					\begin{itemize}
+						\item Adresse source du paquet
+						\item Taille des datas
+						\item Datas
+					\end{itemize}
+					\item Fonction de traitement des erreurs
+					\begin{itemize}
+						\item Problème de parité
+						\item Erreur du checksum
+						\item Buffer plein
+					\end{itemize}
+				\end{itemize}
+			\end{block}
+		\end{frame}
+
+\section{La pratique}
+
+	\subsection{Le débugage}
+
+		\begin{frame}
+			\frametitle{Comment débuguer}
+			\begin{block}{La liaison série}
+				\begin{itemize}
+					\item Fonction d'envoie d'un caractère
+					\item Fonction d'envoie d'une chaine de caractères
+				\end{itemize}
+			\end{block}
+			\begin{block}{Les test unitaires}
+				\begin{itemize}
+					\item Tests unitaires sur chaque couche
+					\item Codage couche par couche pour arriver à la couche applicative
+				\end{itemize}
+			\end{block}
+		\end{frame}
+
+	\subsection{Les problèmes rencontré}
+
+
+		\begin{frame}
+			\frametitle{Le compilateur}
+			\begin{alertblock}{Pas de print dans la boucle}
+				while(1)\{\newline
+				if( reception == 1 )\{\newline
+				reception = 0;\newline
+				print("octet recu");\}\}
+			\end{alertblock}
+			\begin{exampleblock}{Print dans la boucle}
+				while(1)\{\newline
+				print("coucou");\newline
+				if( reception == 1 )\{\newline
+				reception = 0;\newline
+				print("octet recu");\}\}
+			\end{exampleblock}
+		\end{frame}
+
+		\begin{frame}
+			\frametitle{La désynchronisation}
+			\begin{alertblock}{Désynchronisation des bits lors de la réception d'un octet}
+				Solution : modifier le bit de start pour qu'il soit unique
+			\end{alertblock}
+			\begin{alertblock}{Désynchronisation des octets lors de la réception d'un paquet}
+				Solution : créer un octet de start de paquet (modification de l'octet d'adresse pour qu'il commence toujours par la même chose)
+			\end{alertblock}
+		\end{frame}
+
+	\subsection{Réception non bloquante}
+		
+		\begin{frame}
+			\frametitle{Ne pas bloquer le programme principal}
+			\begin{itemize}
+				\item Interruption sur front montant qui déclenche le timer
+				\item Interruption toute les millisecondes sur le timer (s'il est déclenché)
+				\item Analyse, 5 millisecondes après l'interruption sur front montant, du signal
+				\item Une fois un octet reçu entièrement, passage de l'octet pour analyse de celui-ci par la couche supérieur
+				\item Création d'un paquet stocké dans un buffer
+			\end{itemize}
+		\end{frame}
+						
+
+	\subsection{Eviter les conflits}
+		\begin{frame}
+			\frametitle{Pas de conflits d'envoie/reception sur la ligne}
+			\begin{itemize}
+				\item Utilisation d'une variable globale de type "Mutex"
+				\item On vérifie si la ligne n'est pas occupée avant d'emettre
+			\end{itemize}
+		\end{frame}
+
+\section{Conclusion}
+
+	\begin{frame}
+		\frametitle{Conclusion}
+		Merci pour votre écoute, des questions ?
+	\end{frame}
+
+\section{Références}
+
+	\begin{frame}
+		\frametitle{Références}
+		[1] http://www.avrfreaks.net\newline
+		[2] http://www.nongnu.org/avr-libc/\newline
+		[3] datasheet\newline
+	\end{frame}
+
+\end{document}
