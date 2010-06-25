@@ -830,7 +830,7 @@ La couche supérieur est la couche applicative.
 \end_layout
 
 \begin_layout Part
-Pratique
+Implémentation
 \end_layout
 
 \begin_layout Chapter
@@ -841,12 +841,980 @@ Microcontrôleur
 La couche physique : phy.c et phy.h
 \end_layout
 
+\begin_layout Standard
+Nous allons commencer par essayer de comprendre comment fonctionne la couche
+ la plus bas niveau
+\begin_inset space ~
+\end_inset
+
+: la couche physique.
+ 
+\end_layout
+
+\begin_layout Standard
+Anfin de savoir comment fonction cette couche, nous avons l'algorithme 3.1
+ qui nous indique la liste des fonctions disponible dans ces fichiers.
+ De plus, nous allons étudier le fonctionnement des fonctions les plus important
+es.
+ Pour de plus ample détail, il est conseillé de se reporter au code source
+ disponible en annexe qui est commenté.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},language=C"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+void relancerTimer(uint16_t valeur);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void initTimer(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void emissionOctet( uint8_t octet);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void envoieHaut( void );
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void envoieBas( void );
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void pause(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void depart(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+uint8_t xor( uint8_t octet );
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+uint8_t sample(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void stop_timer();
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Prototypes des fonctions de phy.c
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Réception d'un octet
+\end_layout
+
+\begin_layout Standard
+Afin de recevoir un octet, sans avoir de système bloquant, nous utilisons
+ les interruptions du microcontrôleur.
+ La première interruption est l'interruption de front montant qui signale
+ l'arrivé d'un bit transmis.
+ La seconde interruption est celle du timer 1 qui permet de mesure le temps
+ pour pouvoir analyser le bit reçu au bon moment.
+\end_layout
+
+\begin_layout Subsubsection
+Interruption sur front montant de la pin PD5
+\end_layout
+
+\begin_layout Standard
+Le vecteur d'interruption de front montant sur PCINT0 
+\emph on
+ISR(INT0_vect)
+\emph default
+ permet de détecter l'arrivé d'un bit, même si le programme principal ne
+ nous donne pas la main.
+ Lors de la gestion de cette interruption, nous allons lancer le timer pour
+ que celui-ci provoque une interruption 1ms après l'arrivé du bit.
+\end_layout
+
+\begin_layout Subsubsection
+Interruption du timer1
+\end_layout
+
+\begin_layout Standard
+En cas d'arrivée d'une interruption du au timer 1 (lancé par l'arrivé d'un
+ bit), nous allons vérifier que le temps nécessaire c'est bien écoulé, et
+ enregistrer chaque bit reçu de manière à pouvoir envoyer un octet entier
+ à la couche supérieur.
+\end_layout
+
+\begin_layout Description
+Réception
+\begin_inset space ~
+\end_inset
+
+d'un
+\begin_inset space ~
+\end_inset
+
+bit
+\begin_inset space ~
+\end_inset
+
+de
+\begin_inset space ~
+\end_inset
+
+start
+\begin_inset space ~
+\end_inset
+
+: Le première chose que l'on va faire lors de cette routine d'interruption,
+ et de vérifier que nous ayons bien reçu un bit de start.
+ Si nous avons bien reçu un bit de start, nous incrémentons un compteur
+ qui nous indique le numéro du prochain bit que l'on va recevoir et nous
+ prenons le mutex de ligne afin de ne pas émettre tant que nous n'avons
+ pas reçu un octet en entier.
+ Puis nous quittons la routine d'interruption.
+ Dans le cas contraire, nous quittons la routine d'interruption en continuant
+ d'attendre un bit de start.
+\end_layout
+
+\begin_layout Description
+Réception
+\begin_inset space ~
+\end_inset
+
+du
+\begin_inset space ~
+\end_inset
+
+bit
+\begin_inset space ~
+\end_inset
+
+de
+\begin_inset space ~
+\end_inset
+
+stop
+\begin_inset space ~
+\end_inset
+
+: Cela peut paraitre bizarre, mais après avoir reçu le bit de start, on
+ va vérifier que nous ne recevons pas un bit de stop.
+ Si nous avons un bit de stop, on libère le mutex de ligne, et on quitte
+ l'interruption après avoir réinitialisé les variables locales.
+ Le fait de vérifier le bit de stop avant les bits de données permet de
+ gagner du temps dans les routines d'interruptions (puisque nous les quittons
+ plus tôt) et donc laisser le temps processeur au programme principal.
+\end_layout
+
+\begin_layout Description
+Réception
+\begin_inset space ~
+\end_inset
+
+des
+\begin_inset space ~
+\end_inset
+
+bits
+\begin_inset space ~
+\end_inset
+
+de
+\begin_inset space ~
+\end_inset
+
+donnée
+\begin_inset space ~
+\end_inset
+
+: Enfin, nous allons enregistrer les neufs bits suivants
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+8 bits de données et 1 bit de parité
+\end_layout
+
+\end_inset
+
+.
+ Cette opération se fait en 2 temps.
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+Réception
+\begin_inset space ~
+\end_inset
+
+des
+\begin_inset space ~
+\end_inset
+
+données
+\begin_inset space ~
+\end_inset
+
+: Tout d'abord, nous enregistrons les 8 premier bits reçu puisqu'il s'agit
+ de l'octet que l'on veut recevoir.
+\end_layout
+
+\begin_layout Description
+Réception
+\begin_inset space ~
+\end_inset
+
+du
+\begin_inset space ~
+\end_inset
+
+bit
+\begin_inset space ~
+\end_inset
+
+de
+\begin_inset space ~
+\end_inset
+
+parité
+\begin_inset space ~
+\end_inset
+
+: Puis nous enregistrons le neuvième bit qui correspond au bit de parité.
+ C'est à ce moment là que l'on appel la couche supérieur avec soit, l'envoi
+ de l'octet reçu si la parité reçue et calculée sont identique, ou l'appel
+ à une fonction de gestion des erreurs dans le cas contraire.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+Emission d'un octet
+\end_layout
+
+\begin_layout Standard
+Pour envoyer 1 octet, nous avons une fonction bloquante (
+\emph on
+void emissionOctet( uint8_t octet)
+\emph default
+)qui prend un octet en paramètre, et qui s'occupe de faire appel aux fonctions
+ très bas niveau qui envoie un bit logique 
+\begin_inset Quotes eld
+\end_inset
+
+haut
+\begin_inset Quotes erd
+\end_inset
+
+ ou un bit logique 
+\begin_inset Quotes eld
+\end_inset
+
+bas
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Cette fonction fait un appel à la fonction de calcul de parité pour envoyer
+ la parité après les données.
+\begin_inset Newline newline
+\end_inset
+
+Cette fonction va d'abord vérifier que la ligne est libre (à l'aide du mutex
+ de ligne), puis envoyer un bit de start suivi des données, de la parité
+ et enfin le bit de stop qui remet la ligne à l'état logique haut (5V).
+\end_layout
+
+\begin_layout Subsubsection
+Envoi d'un bit logique 
+\begin_inset Quotes eld
+\end_inset
+
+haut
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La fonction 
+\emph on
+void envoieHaut( void )
+\emph default
+ se contente d'envoyer un bit logique 
+\begin_inset Quotes eld
+\end_inset
+
+haut
+\begin_inset Quotes erd
+\end_inset
+
+ en envoyant un état logique haut (5V) pendant 7ms puis un état logique
+ bas (0V) pendant 3ms.
+\end_layout
+
+\begin_layout Subsubsection
+Envoi d'un bit logique 
+\begin_inset Quotes eld
+\end_inset
+
+bas
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+La fonction 
+\emph on
+void envoieBas( void )
+\emph default
+ fait la même chose que la fonction précédente, sauf qu'elle envoie un bit
+ logique 
+\begin_inset Quotes eld
+\end_inset
+
+bas
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Calcul de la parité
+\end_layout
+
+\begin_layout Standard
+Un fonction de calcul de parité 
+\emph on
+uint8_t xor( uint8_t octet )
+\emph default
+ prend en paramètre un octet, calcul la valeur de la parité qui lui est
+ associée, et renvoie un octet
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+il n'est pas possible de définir un bit en langage C avr
+\end_layout
+
+\end_inset
+
+ qui vaut soit 0 soit 1.
+\end_layout
+
 \begin_layout Section
 La couche d'adressage : mac.c et mac.h
 \end_layout
 
+\begin_layout Standard
+Maintenant que nous savons comment fonctionne la couche physique, nous allonc
+ voir comment la couche 2 (la couche de transport) traite les données reçu
+ par la couche physique, et prépare les paquets et les stocke avant une
+ utilisiation de ces data par la couche applicative.
+\end_layout
+
+\begin_layout Standard
+Comme pour la couche physique, nous avons une liste des prototypes de fonctions
+ existante, mais nous n'étudierons que le système global avec les fonctions
+ les plus importantes.
+ Pour de plus ample détail, se reporter aux codes sources.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},language=C"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+void init_mac(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void push_byte(unsigned char);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void clear_ring_buffer_overflow(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void copy_packet_to_rx_ring(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void send( uint8_t address_dest, uint8_t data[16], uint8_t taille);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+int8_t recv (uint8_t *src, uint8_t *taille, unsigned char *datas);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+uint8_t calcul_checksum( uint8_t data[16], uint8_t taille);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+unsigned char rx_buffer_overflow(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+uint8_t can_write(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+uint8_t can_read(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void inc_write_pointer(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void inc_read_pointer(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+inline void clear_ring_buffer_overflow(void);
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void detection_erreur( uint8_t erreur);
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Prototype des fonctions de mac.c
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Réception d'un paquet
+\end_layout
+
+\begin_layout Standard
+Pour que l'application puisse recevoir les données d'un paquet, il faut
+ créer ce paquet et traiter tout les données reçues.
+ Cela se fait en 3 grandes étapes que nous allons voir.
+\end_layout
+
+\begin_layout Subsubsection
+Réception d'un octet de la couche physique
+\end_layout
+
+\begin_layout Standard
+La première étape correspond à la fonction 
+\emph on
+void push_byte(unsigned char b)
+\emph default
+ qui est appelé par la couche physique lorsque celle-ci à reçu un octet.
+ C'est cette fonction qui va constituer le paquet.
+ Pour ce faire, nous utilisons un compteur qui permet de connaitre le numéro
+ de l'octet reçu.
+ C'est à partir de ce compteur que tout se fait, comme suit
+\begin_inset space ~
+\end_inset
+
+:
+\end_layout
+
+\begin_layout Description
+Est-ce
+\begin_inset space ~
+\end_inset
+
+le
+\begin_inset space ~
+\end_inset
+
+dernier
+\begin_inset space ~
+\end_inset
+
+octet
+\begin_inset space ~
+\end_inset
+
+: On va d'abord vérifier que le numéro de l'octet reçu vaut soit la taille
+ du paquet que l'on doit recevoir, soit la taille maximale du paquet.
+ Si c'est le cas, on va stocker le paquet local
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Nous avons définit une structure paquet
+\end_layout
+
+\end_inset
+
+ que l'on a créer dans le buffer circulaire partagé entre la couche 2 et
+ la couche applicative.
+ Enfin, on va réinitialiser tout les variables locales et le compteur.
+\end_layout
+
+\begin_layout Description
+Octet
+\begin_inset space ~
+\end_inset
+
+de
+\begin_inset space ~
+\end_inset
+
+data
+\begin_inset space ~
+\end_inset
+
+: Si l'octet que l'on reçoit n'est pas le dernier octet, on va constituer
+ le début de notre paquet.
+\end_layout
+
+\begin_deeper
+\begin_layout Description
+Avons
+\begin_inset space ~
+\end_inset
+
+nous
+\begin_inset space ~
+\end_inset
+
+un
+\begin_inset space ~
+\end_inset
+
+octet
+\begin_inset space ~
+\end_inset
+
+de
+\begin_inset space ~
+\end_inset
+
+start
+\begin_inset space ~
+\end_inset
+
+: On va d'abord vérifier que l'on a un octet de start
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+L'octet de start permet d'éviter une désynchronisation de paquet
+\end_layout
+
+\end_inset
+
+ qui est aussi l'octet correspondant à l'adresse source.
+ Si ce n'est pas le cas, on retourne et on attend un octet de start.
+ Si c'est bien le bon octet, on le stocke dans notre structure paquet, dans
+ la partie source, puis on incrémente notre compteur pour signaler que l'on
+ attend un octet correspondant à l'adresse de destination.
+\end_layout
+
+\begin_layout Description
+Adresse
+\begin_inset space ~
+\end_inset
+
+de
+\begin_inset space ~
+\end_inset
+
+destination
+\begin_inset space ~
+\end_inset
+
+: L'octet suivant est enregistrer directement sans traitement.
+ Il s'agit de l'adresse de destination.
+\end_layout
+
+\begin_layout Description
+Checksum
+\begin_inset space ~
+\end_inset
+
+et
+\begin_inset space ~
+\end_inset
+
+taille
+\begin_inset space ~
+\end_inset
+
+: L'octet suivant est le checksum du paquet et la taille des données.
+ Le chechsum est enregistré, tandis que la taille sera utilisé pour savoir
+ combien d'octet de donnés nous allons enregistrer pour finir de créer notre
+ paquet.
+\end_layout
+
+\begin_layout Description
+Data
+\begin_inset space ~
+\end_inset
+
+: La suite correspond au data.
+ On va utiliser la taille du paquet reçu juste avant afin de savoir combien
+ en enregistrer.
+\end_layout
+
+\end_deeper
+\begin_layout Subsubsection
+Le buffer circulaire
+\end_layout
+
+\begin_layout Standard
+Lorsque un paquet est entièrement reçu par la fonction que nous avons vu
+ précédement, le paquet est envoyé dans le buffer circulaire grâce à la
+ fonction 
+\emph on
+void copy_packet_to_rx_ring(void)
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Cette fonction va, avant de mettre le paquet dans le buffer, vérifier quelques
+ paramètres
+\begin_inset space ~
+\end_inset
+
+:
+\end_layout
+
+\begin_layout Itemize
+Vérifier que ce paquet nous est bien destiné en comparant l'adresse de destinati
+on et l'adresse du programme.
+\end_layout
+
+\begin_layout Itemize
+Vérifier que le paquet n'est pas erroné en calculant le checksum du paquet,
+ et en le comparant avec celui contenu dans le paquet.
+\end_layout
+
+\begin_layout Itemize
+Vérifier que le buffer n'est pas plein pour ne pas effacer des paquets que
+ l'on aurait pas lu.
+\end_layout
+
+\begin_layout Standard
+Si une de ces conditions n'est pas vérifiée, le paquet est supprimé et la
+ fonction de gestion des erreurs est appelé pour signaler à l'utilisateur
+ qu'une erreur c'est produite et qu'un paquet a été supprimé.
+\end_layout
+
+\begin_layout Standard
+En revanche, si tout c'est bien passé, on stocke le paquet dans le buffer.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Afin d'éviter de supprimer des paquets que l'application n'aurait pas lu,
+ et de savoir quel où lire ou où écrire, nous avons des pointeurs de lecture
+ et d'écriture sur ce ring buffer.
+ Une comparaison de ces 2 pointeurs, en fonction de l'overflow (qui indique
+ si nous avons fait un tour complet ou non du buffer), nous permet savoir
+ où écrire, et où lire.
+\end_layout
+
+\begin_layout Subsubsection
+Lecture d'un paquet de la couche applicative
+\end_layout
+
+\begin_layout Standard
+La fonction 
+\emph on
+int8_t recv (uint8_t *src, uint8_t *taille, unsigned char *datas)
+\emph default
+ peut-être appelé par la couche applicative pour lire un paquet reçu.
+ Le paquet est lu dans le buffer circulaire.
+\end_layout
+
+\begin_layout Standard
+Cette fonction est une fonction bloquante
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Nous avons fait le choix de faire une fonction bloquante pour éviter de
+ se retrouver dans la situation suivante
+\begin_inset space ~
+\end_inset
+
+: Je lis un paquet avec une fonction non bloquante, et je passe à la suite
+ du programme.
+ J'utilise mon paquet dans la suite du programme.
+ Cependant, ma fonction non bloquante n'a pas eu le temps de récupérer le
+ paquet.
+ Donc le reste du programme s'exécutera avec de fausse valeur.
+\end_layout
+
+\end_inset
+
+.
+ En revanche, en cas d'erreur détecté (checksum, parité, ...), on débbloque
+ la fonction.
+\end_layout
+
+\begin_layout Standard
+Cette fonction renvoie un code retour positif si tout c'est bien passé,
+ et un code retour négatif en cas d'erreur de détection.
+ Ce code retour permet d'éviter de croire que tout c'est bien déroulé, mais
+ avoir retourné des pointeurs vides, ce qui peut être très problématique
+ pour la suite du programme.
+ 
+\end_layout
+
+\begin_layout Subsection
+Emission d'un paquet
+\end_layout
+
+\begin_layout Standard
+Lorsque la couche applicative veut envoyer un paquet, il lui suffit d'appeler
+ la fonction 
+\emph on
+void send( uint8_t address_dest, uint8_t data[16], uint8_t taille)
+\emph default
+ en lui indiquant à qui envoyer le paquet, sa taille et les données.
+\end_layout
+
+\begin_layout Standard
+Cette fonction rempliera automatiquement l'adresse source et le checksum.
+\end_layout
+
+\begin_layout Subsection
+Fonctions globales
+\end_layout
+
+\begin_layout Subsubsection
+Calcul du checksum
+\end_layout
+
+\begin_layout Standard
+La fonction 
+\emph on
+uint8_t calcul_checksum( uint8_t data[16], uint8_t taille)
+\emph default
+ calcul le checksum et renvoie la valeur du checksum.
+ Elle est utilisé lors de l'envoie et lors de la réception d'un paquet.
+\end_layout
+
+\begin_layout Standard
+A l'heure actuelle, cette fonction n'est pas optimisée pour détecter ou
+ corriger les erreurs.
+ En effet, il est possible que 2 erreurs se compensent.
+ Cependant, elle fonctionne très bien pour détecter une erreur sur plusieurs
+ bits en fonction de leurs positions dans les datas.
+\end_layout
+
+\begin_layout Subsubsection
+Gestion des erreurs
+\end_layout
+
+\begin_layout Standard
+Une fonction de gestion des erreurs appelée 
+\emph on
+void detection_erreur( uint8_t erreur)
+\emph default
+ a été implémentée.
+ Elle est appelé en cas d'erreur quelconque lors de la réception de données.
+ Les erreurs peuvent être une erreur dans la parité, dans le checksum ou
+ dans la taille du buffer qui peut être rempli.
+ Dans ce cas, en fonction du type d'erreur, elle affichera un message différent,
+ et débloquera la fonction 
+\emph on
+recv
+\emph default
+ avec un code retour d'erreur.
+\end_layout
+
 \begin_layout Section
 La couche applicative : main.c
+\end_layout
+
+\begin_layout Subsection
+Utilisation de notre code
+\end_layout
+
+\begin_layout Subsection
+Ressources utilisées
 \end_layout
 
 \begin_layout Section
@@ -1010,66 +1978,6 @@ void puts(const char *)
  la fontion uart_send_char pour envoyer la chaine de caractère
 \emph on
 .
-\begin_inset Newline newline
-\end_inset
-
-
-\begin_inset Box Ovalbox
-position "t"
-hor_pos "c"
-has_inner_box 1
-inner_pos "t"
-use_parbox 0
-width "100col%"
-special "none"
-height "1in"
-height_special "totalheight"
-status collapsed
-
-\begin_layout Plain Layout
-
-\emph on
-\begin_inset Graphics
-	filename image/attention.gif
-	lyxscale 10
-	scale 7
-	rotateOrigin rightBaseline
-
-\end_inset
-
-Il faut la chaine de caractère donnée à la fonction 
-\begin_inset Quotes eld
-\end_inset
-
-puts
-\begin_inset Quotes erd
-\end_inset
-
- se termine par un 
-\begin_inset Quotes eld
-\end_inset
-
-
-\backslash
-0
-\begin_inset Quotes erd
-\end_inset
-
-.
- Dans le cas contraire, la fonction 
-\begin_inset Quotes eld
-\end_inset
-
-puts
-\begin_inset Quotes erd
-\end_inset
-
- lira toute la mémoire jusqu'au reset du microcontroleur.
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Subsubsection
@@ -1405,6 +2313,74 @@ FPGA
 \end_layout
 
 \begin_layout Part
+Résultat, problème et analyse
+\end_layout
+
+\begin_layout Chapter
+Les problèmes qui sont apparus
+\end_layout
+
+\begin_layout Section
+Le compilateur
+\end_layout
+
+\begin_layout Section
+La désynchronisation
+\end_layout
+
+\begin_layout Subsection
+Problème de lecture d'un octet
+\end_layout
+
+\begin_layout Subsection
+Problème de lecture d'un paquet
+\end_layout
+
+\begin_layout Section
+Le datasheet et la liaison série
+\end_layout
+
+\begin_layout Chapter
+Les résultats
+\end_layout
+
+\begin_layout Section
+Emission et réception simultanées
+\end_layout
+
+\begin_layout Section
+La couche haute
+\end_layout
+
+\begin_layout Part
+Nos impressions
+\end_layout
+
+\begin_layout Chapter
+Jérémy Cheynet
+\end_layout
+
+\begin_layout Section
+Le langage C version microcontrôleur
+\end_layout
+
+\begin_layout Section
+Résolution des problèmes
+\end_layout
+
+\begin_layout Subsection
+Détection du problème
+\end_layout
+
+\begin_layout Subsection
+Les résoudre
+\end_layout
+
+\begin_layout Chapter
+Yann Sionneau
+\end_layout
+
+\begin_layout Part
 Annexes
 \end_layout
 
@@ -1736,19 +2712,1174 @@ La couche physique
 
 \begin_layout Standard
 \begin_inset Float algorithm
-placement H
-wide false
+placement !t
+wide true
 sideways false
 status collapsed
 
 \begin_layout Plain Layout
 \align center
 \begin_inset listings
+lstparams "basicstyle={\scriptsize},language=C,numbers=left,numberstyle={\scriptsize}"
 inline false
 status open
 
 \begin_layout Plain Layout
 
+#include "phy.h"
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+/**
+\end_layout
+
+\begin_layout Plain Layout
+
+ * Mutex de prise de la ligne 
+\end_layout
+
+\begin_layout Plain Layout
+
+ */
+\end_layout
+
+\begin_layout Plain Layout
+
+uint8_t mutex_ligne;
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void initPin(void)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	DDRD &= ~( 1 << PORTD2 );
+\end_layout
+
+\begin_layout Plain Layout
+
+	PORTD |= ( 1 << PORTD2 );
+\end_layout
+
+\begin_layout Plain Layout
+
+	EICRA |= (1 << ISC01) | (1 << ISC00);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void init_phy(void)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	mutex_ligne = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+	initPin(); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	cli(); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	initTimer(); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	EIMSK |= (1 << INT0); // disables INT1 and enables INT0 
+\end_layout
+
+\begin_layout Plain Layout
+
+	EIMSK &= ~(1 << INT1); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	sei();
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+/**
+\end_layout
+
+\begin_layout Plain Layout
+
+ * Gestion de l'interruption du Timer0
+\end_layout
+
+\begin_layout Plain Layout
+
+ * @param TIMER0_OVF Vecteur d'interruption
+\end_layout
+
+\begin_layout Plain Layout
+
+ */
+\end_layout
+
+\begin_layout Plain Layout
+
+ISR(TIMER1_OVF_vect)
+\end_layout
+
+\begin_layout Plain Layout
+
+{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+	static uint8_t compteur = 0;					  //permet de savoir quel est le bit qu'on
+ attend de recevoir 
+\end_layout
+
+\begin_layout Plain Layout
+
+	static uint8_t timer_is_ok =0;					//permet de mesure le temps 
+\end_layout
+
+\begin_layout Plain Layout
+
+	static uint8_t reception = 0; 					//Octet de réception 
+\end_layout
+
+\begin_layout Plain Layout
+
+	static uint8_t parite = 0;						//Bit de parite recu
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	/*
+\end_layout
+
+\begin_layout Plain Layout
+
+	 * Est ce que nous attendons le bit de start ? 
+\end_layout
+
+\begin_layout Plain Layout
+
+	 * on sample donc à 2 millisecondes.
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+	 * Si ce n'est pas le cas, on passe à la suite.
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+	 */ 
+\end_layout
+
+\begin_layout Plain Layout
+
+	if( compteur == 0 ) 
+\end_layout
+
+\begin_layout Plain Layout
+
+	{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+		if( timer_is_ok == 1 ) 
+\end_layout
+
+\begin_layout Plain Layout
+
+		{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+			if( !(sample()) ) 
+\end_layout
+
+\begin_layout Plain Layout
+
+			{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+				mutex_ligne = 1;
+\end_layout
+
+\begin_layout Plain Layout
+
+				compteur++; 
+\end_layout
+
+\begin_layout Plain Layout
+
+			}
+\end_layout
+
+\begin_layout Plain Layout
+
+			timer_is_ok = 0; 
+\end_layout
+
+\begin_layout Plain Layout
+
+			stop_timer();
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+		else
+\end_layout
+
+\begin_layout Plain Layout
+
+		{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+			timer_is_ok++;
+\end_layout
+
+\begin_layout Plain Layout
+
+			relancerTimer(RECHARGE);
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	else if( compteur == 10 )
+\end_layout
+
+\begin_layout Plain Layout
+
+	{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+		compteur = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+		reception = 0; 
+\end_layout
+
+\begin_layout Plain Layout
+
+		timer_is_ok = 0; 
+\end_layout
+
+\begin_layout Plain Layout
+
+		mutex_ligne = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+		stop_timer(); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	else 
+\end_layout
+
+\begin_layout Plain Layout
+
+	{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+		/* 
+\end_layout
+
+\begin_layout Plain Layout
+
+ 		* On vérifie qu'il s'est bien écoulé 5ms 
+\end_layout
+
+\begin_layout Plain Layout
+
+ 		* C'est à dire que l'on rappel 4 fois cette fonction 
+\end_layout
+
+\begin_layout Plain Layout
+
+		 */
+\end_layout
+
+\begin_layout Plain Layout
+
+		if( !(timer_is_ok == 4) ) 
+\end_layout
+
+\begin_layout Plain Layout
+
+		{
+\end_layout
+
+\begin_layout Plain Layout
+
+			timer_is_ok++; 
+\end_layout
+
+\begin_layout Plain Layout
+
+			relancerTimer(RECHARGE);
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+		else
+\end_layout
+
+\begin_layout Plain Layout
+
+		{
+\end_layout
+
+\begin_layout Plain Layout
+
+			if( compteur < 9 )						//On reçoit les bits de data de l'octet 
+\end_layout
+
+\begin_layout Plain Layout
+
+			{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+				reception |= ( sample() << (8 - compteur) );		//On shift de manière
+ à recevoir le MSB en premier, et le LSB en dernier.
+\end_layout
+
+\begin_layout Plain Layout
+
+				compteur++;
+\end_layout
+
+\begin_layout Plain Layout
+
+				stop_timer(); 
+\end_layout
+
+\begin_layout Plain Layout
+
+			}
+\end_layout
+
+\begin_layout Plain Layout
+
+			else								//On reçoit le bit de parité 
+\end_layout
+
+\begin_layout Plain Layout
+
+			{
+\end_layout
+
+\begin_layout Plain Layout
+
+				if( sample() == xor( reception ))
+\end_layout
+
+\begin_layout Plain Layout
+
+				{
+\end_layout
+
+\begin_layout Plain Layout
+
+					push_byte2(reception);
+\end_layout
+
+\begin_layout Plain Layout
+
+				}
+\end_layout
+
+\begin_layout Plain Layout
+
+				else
+\end_layout
+
+\begin_layout Plain Layout
+
+				{
+\end_layout
+
+\begin_layout Plain Layout
+
+					detection_erreur(PARITY_ERROR);
+\end_layout
+
+\begin_layout Plain Layout
+
+				}
+\end_layout
+
+\begin_layout Plain Layout
+
+				stop_timer();
+\end_layout
+
+\begin_layout Plain Layout
+
+				compteur++;
+\end_layout
+
+\begin_layout Plain Layout
+
+			}
+\end_layout
+
+\begin_layout Plain Layout
+
+			timer_is_ok = 0;						//On reset la variable timer_is_ok
+\end_layout
+
+\begin_layout Plain Layout
+
+		} 
+\end_layout
+
+\begin_layout Plain Layout
+
+	} 
+\end_layout
+
+\begin_layout Plain Layout
+
+	return;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+uint8_t sample(void) 
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	return (( PIND & (1 << PIND2) ) >> PIND2 );
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void stop_timer() 
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	TCCR1B &= ~(1 << CS10 );
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+/** 
+\end_layout
+
+\begin_layout Plain Layout
+
+ * Gestion de l'interruption sur front changeant de la pin INT0 
+\end_layout
+
+\begin_layout Plain Layout
+
+ * @param PCINT0 Vecteur d'interruption  
+\end_layout
+
+\begin_layout Plain Layout
+
+ */
+\end_layout
+
+\begin_layout Plain Layout
+
+ISR(INT0_vect)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	TCNT1 = 0; 
+\end_layout
+
+\begin_layout Plain Layout
+
+	relancerTimer(RECHARGE);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+unsigned char verificationTemps(void)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	static unsigned char temps = 0; 
+\end_layout
+
+\begin_layout Plain Layout
+
+	if( temps == 4 ) 
+\end_layout
+
+\begin_layout Plain Layout
+
+	{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+		temps = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+		TCCR1B &= ~(1 << CS10 ); 
+\end_layout
+
+\begin_layout Plain Layout
+
+		return 42;
+\end_layout
+
+\begin_layout Plain Layout
+
+	} 
+\end_layout
+
+\begin_layout Plain Layout
+
+	temps++; 
+\end_layout
+
+\begin_layout Plain Layout
+
+	relancerTimer(RECHARGE);
+\end_layout
+
+\begin_layout Plain Layout
+
+	return 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void relancerTimer(uint16_t valeur)
+\end_layout
+
+\begin_layout Plain Layout
+
+{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+	uint16_t timer; 
+\end_layout
+
+\begin_layout Plain Layout
+
+	sreg = SREG; 
+\end_layout
+
+\begin_layout Plain Layout
+
+	cli();
+\end_layout
+
+\begin_layout Plain Layout
+
+	stop_timer(); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	timer = TCNT1; 
+\end_layout
+
+\begin_layout Plain Layout
+
+	TCNT1 = 65535 - valeur + timer; 
+\end_layout
+
+\begin_layout Plain Layout
+
+	TCCR1B |= (1 << CS10 ); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	TIMSK1 |= (1 << TOIE1); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	SREG = sreg; 
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void initTimer(void) 
+\end_layout
+
+\begin_layout Plain Layout
+
+{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Permet de mettre les bonnes valeurs dans les registres pour activer le
+ timer 1 en mode normal 
+\end_layout
+
+\begin_layout Plain Layout
+
+	TCCR1A &= (~(1 << WGM10 ) & ~(1 << WGM11));
+\end_layout
+
+\begin_layout Plain Layout
+
+	TCCR1B &= (~(1 << WGM12 ) & ~(1 << WGM13)); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	//Permet d'activer l'interruption timer 1 
+\end_layout
+
+\begin_layout Plain Layout
+
+	TIMSK1 |= (1 << TOIE1); 
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void emissionOctet( uint8_t octet)
+\end_layout
+
+\begin_layout Plain Layout
+
+{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+	int8_t compteur = 0; 
+\end_layout
+
+\begin_layout Plain Layout
+
+	if( mutex_ligne == 0 ) 
+\end_layout
+
+\begin_layout Plain Layout
+
+	{ 
+\end_layout
+
+\begin_layout Plain Layout
+
+		EIMSK &= ~(1 << INT0);
+\end_layout
+
+\begin_layout Plain Layout
+
+		mutex_ligne = 1; 
+\end_layout
+
+\begin_layout Plain Layout
+
+		DDRD |= ( 1<<DDD2 );
+\end_layout
+
+\begin_layout Plain Layout
+
+		depart(); 
+\end_layout
+
+\begin_layout Plain Layout
+
+		for( compteur = 7; compteur >= 0; compteur--) 
+\end_layout
+
+\begin_layout Plain Layout
+
+		{
+\end_layout
+
+\begin_layout Plain Layout
+
+			if( (octet & (1 << compteur)) )
+\end_layout
+
+\begin_layout Plain Layout
+
+				envoieHaut();
+\end_layout
+
+\begin_layout Plain Layout
+
+			else
+\end_layout
+
+\begin_layout Plain Layout
+
+				envoieBas();
+\end_layout
+
+\begin_layout Plain Layout
+
+		}
+\end_layout
+
+\begin_layout Plain Layout
+
+		if( (xor(octet)) )
+\end_layout
+
+\begin_layout Plain Layout
+
+			envoieHaut();
+\end_layout
+
+\begin_layout Plain Layout
+
+		else
+\end_layout
+
+\begin_layout Plain Layout
+
+			envoieBas();
+\end_layout
+
+\begin_layout Plain Layout
+
+		pause();
+\end_layout
+
+\begin_layout Plain Layout
+
+		DDRD &= ~( 1<<DDD2 );
+\end_layout
+
+\begin_layout Plain Layout
+
+		PORTD |= ( 1 << PORTD2 ); 
+\end_layout
+
+\begin_layout Plain Layout
+
+		mutex_ligne = 0; 
+\end_layout
+
+\begin_layout Plain Layout
+
+		EIMSK |= (1 << INT0); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void envoieHaut( void )
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	PORTD |= (1 << PORTD2); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	_delay_ms(7); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	PORTD &= ~(1 << PORTD2); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	_delay_ms(3);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void envoieBas( void )
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	PORTD |= (1 << PORTD2); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	_delay_ms(3); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	PORTD &= ~(1 << PORTD2); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	_delay_ms(7);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void pause(void) 
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	PORTD |= (1 << PORTD2); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	_delay_ms(20);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void depart(void)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	PORTD &= ~(1 << PORTD2);
+\end_layout
+
+\begin_layout Plain Layout
+
+	_delay_ms(10); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	PORTD |= (1 << PORTD2); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	_delay_ms(1); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	PORTD &= ~(1 << PORTD2); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	_delay_ms(9); 
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+uint8_t xor( uint8_t octet )
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	uint8_t parite = octet;
+\end_layout
+
+\begin_layout Plain Layout
+
+	parite ^= (octet << 1); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	parite ^= (octet << 2); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	parite ^= (octet << 3); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	parite ^= (octet << 4); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	parite ^= (octet << 5); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	parite ^= (octet << 6); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	parite ^= (octet << 7); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	parite &= 0x80; 
+\end_layout
+
+\begin_layout Plain Layout
+
+	return ( parite >> 7 ); 
+\end_layout
+
+\begin_layout Plain Layout
+
+} 
 \end_layout
 
 \end_inset
