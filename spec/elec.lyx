@@ -3422,6 +3422,142 @@ Je suis très content d'avoir fait ce programme, étant donné qu'il nous a
 Yann Sionneau
 \end_layout
 
+\begin_layout Section
+Le C pour microcontrôleur
+\end_layout
+
+\begin_layout Standard
+Bien qu'ayant déjà fait du C pour microcontrôleur lors d'un stage (sur AVR
+ AtTiny24), l'implémentation du protocole a été parsemée d'embuches et loin
+ d'être triviale, je pensais sincèrement que ça nous poserait moins de problèmes
+ et que nous pourrions donc nous consacrer à ce qui me semblait être le
+ plus complexe : l'implémentation sur FPGA.
+\end_layout
+
+\begin_layout Standard
+Ceci-dit c'était mon premier projet en utilisant la plaque de développement
+ Arduino, qui je l'avoue simplifie pas mal le développement pour plusieurs
+ raisons : 
+\end_layout
+
+\begin_layout Enumerate
+C'est pas cher
+\end_layout
+
+\begin_layout Enumerate
+Le programmateur est intégré, il suffit de brancher en USB et on peut programme
+ avec avrdude
+\end_layout
+
+\begin_layout Enumerate
+C'est alimenté en 5V par l'USB
+\end_layout
+
+\begin_layout Enumerate
+Il y a une liaison Série over USB, pas besoin de MAX232 et de FTDI externe,
+ tout est sur la plaque !
+\end_layout
+
+\begin_layout Enumerate
+Pas besoin de se faire son propre PCB, de le router, percer, souder : on
+ gagne du temps pour la partie software
+\end_layout
+
+\begin_layout Standard
+L'Arduino a aussi l'avantage de proposer un utilitaire (en java) pour programmer
+ et flasher le microcontroleur, tout en fournissant une librairie d'abstraction
+ assez haut niveau pour pouvoir faire du microcontrôleur (ou plutôt de 
+\begin_inset Quotes eld
+\end_inset
+
+l'Arduino
+\begin_inset Quotes erd
+\end_inset
+
+ dans ce cas là) sans forcément être très calé en C, en software ou en hardware.
+\end_layout
+
+\begin_layout Standard
+En effet l'arduino était à la base fait pour des artistes, donc pas forcément
+ calés en informatique !
+\end_layout
+
+\begin_layout Standard
+Il y a donc des fonctions simples pour rajouter des routines d'interruptions,
+ changer le mode d'une pate, changer l'état d'une pate, gérer un timer,
+ une liaison série etc...
+\end_layout
+
+\begin_layout Standard
+Tout ce qui est bas niveau, registres et autres est caché par la librairie
+ Arduino.
+\end_layout
+
+\begin_layout Standard
+J'étais en effet d'accord pour utiliser la plaque de développement Arduino
+ pour les points 1 à 5, mais je n'étais pas partant pour faire du 
+\begin_inset Quotes eld
+\end_inset
+
+C Arduino
+\begin_inset Quotes erd
+\end_inset
+
+ car je trouvais bien plus intéressant de lire la datasheet du composant
+ et de toucher directement aux registres afin de configurer le device comme
+ il faut.
+ Cela fait en effet perdre pas mal de temps, car au début ça ne marche pas,
+ on réinvente la roue, mais c'est très formateur et c'était bien le but
+ ici : apprendre.
+\end_layout
+
+\begin_layout Standard
+Que dire de plus dans cette partie, si ce n'est que j'ai beaucoup appris
+ encore sur l'architecture AVR à force de lire la datasheet et de jouer
+ avec les registres de ce joli composant qui ne demanderait plus qu'à être
+ ouvert (au niveau des sources vérilog/vhdl de la puce) pour être un produit
+ séduisant !
+\end_layout
+
+\begin_layout Section
+Git
+\end_layout
+
+\begin_layout Standard
+Je dois dire que c'est moi qui ai insisté pour qu'on utilise git en lieu
+ et place de svn, je savais déjà que Jérémy avait bien l'habitude de svn,
+ et je voulais lui montrer qu'il existait autre chose et je pense clairement
+ que git est bien plus puissant et mieux fait que git.
+ En effet git a été développé à l'origine par Linus Torvalds pour versionner
+ les sources du noyau en remplacement de BitKeeper tombé sous le coup d'un
+ copyright.
+\end_layout
+
+\begin_layout Standard
+Après avoir écouté quelques conférences à propos de git (dont une de Linus
+ lui même) il me semble que c'est vraiment un outil très puissant et pratique,
+ mais cependant pas forcément évident à appréhender.
+\end_layout
+
+\begin_layout Standard
+Je l'avais déjà utilisé, mais uniquement les fonctions basiques et nous
+ nous sommes donc mis à l'utiliser intensément (via un repository sur la
+ forge github.com)
+\end_layout
+
+\begin_layout Standard
+Cependant etant debutant avec git nous avons commis quelques erreurs, surtout
+ au niveau des branches qui ont par la suite compliqué son utilisation et
+ aussi le développement à plusieurs.
+ Pourtant l'outil est censé faciliter le travail à plusieurs, mais je suis
+ convaincu que c'est à cause de notre mauvaise utilisation de cet outil
+ que notre productivité à baissé à un moment.
+ L'outil en lui même est bon mais nous l'avons mal utilisé.
+ Nous avons cependant appris de nos erreurs et je pense que par la suite
+ je vais continuer de l'utiliser, en essayant de ne pas refaire les même
+ erreurs, même si je marche quand même encore sur des oeufs en l'utilisant.
+\end_layout
+
 \begin_layout Standard
 \begin_inset Newpage newpage
 \end_inset
