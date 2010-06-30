@@ -133,7 +133,7 @@ es ).
 \end_layout
 
 \begin_layout Standard
-Afin de faciliter la communication entre les appareils, et l'architecture
+Afin de faciliter la communication entre les appareils et l'architecture
  de notre système, nous avons choisi d'utiliser une structure sous forme
  de couches d'abstractions (en s'inspirant du model OSI).
 \end_layout
@@ -147,12 +147,13 @@ Matériel
 \end_layout
 
 \begin_layout Standard
-Notre choix étant de faire fonctionner notre système sur plusieurs système
- et différente architecture.
- Pour cela, nous avons décidé de développer notre système sur un microctontrôleu
-r et sur un FPGA.
+Notre choix est de faire fonctionner notre protocole sur plusieurs systèmes
+ et différentes architectures.
+ Pour cela, nous avons décidé d'implémenter notre protocole sur un microctontrôl
+eur et sur un FPGA.
  Nous avons donc choisi, parmi la grande gamme de produits disponibles dans
- ces 2 catégorie, une architecture de microcontrôleur et un type de FPGA.
+ ces deux catégories, une architecture de microcontrôleur et un type de
+ FPGA.
  
 \end_layout
 
@@ -161,9 +162,9 @@ Microcontrôleur
 \end_layout
 
 \begin_layout Standard
-Nous avons choisi d'implémenter notre système sur microcontrôleur car ces
- puces électroniques sont très répandues, très utilisées et faciles d'utilisatio
-n.
+Nous avons choisi d'implémenter notre protocole sur microcontrôleur car
+ ces puces électroniques sont très répandues, très utilisées et faciles
+ d'utilisation.
  En effet, utiliser un microprocesseur oblige de rajouter de la mémoire,
  et des modules externe, tandis qu'un microcontrôleur est autonome.
 \end_layout
@@ -198,7 +199,7 @@ arduino
 
 : Il s'agit d'une carte microcontrôleur toute prète, programmable en C/C++
  avec un logiciel fourni gratuitement.
- Tout les programmes et toutes les shields
+ Tous les programmes et tous les shields
 \begin_inset Foot
 status collapsed
 
@@ -209,8 +210,8 @@ Petite carte électronique que l'on peut facilement brancher sur la carte
 
 \end_inset
 
- sont open-sources.
- Le microcontrôleur qui se trouve sur la carte est un ATMEGA168 de chez
+ sont open-source.
+ Le microcontrôleur qui se trouve sur la carte est un ATMEGA328p de chez
  ATMEL.
 \begin_inset Float figure
 placement H
@@ -355,7 +356,7 @@ Notre système fonctionne sur 1 seul et unique fil.
 \end_layout
 
 \begin_layout Standard
-Afin de ne pas avoir conflit entre les appareils qui pourront communiquer
+Afin de ne pas avoir de conflits entre les appareils qui pourront communiquer
  sur ce fil, nous avons choisi : 
 \end_layout
 
@@ -394,7 +395,7 @@ ligne
 \end_inset
 
  est à un état logique haut.
- Si ce n'est pas le cas, il attendra avant d'emmettre son signal.
+ Si ce n'est pas le cas, il attendra avant d'émettre son signal.
 \end_layout
 
 \begin_layout Subsubsection
@@ -479,8 +480,9 @@ Un des objectifs est de ne pas avoir de désynchronisation entres les 2 appareil
 \end_layout
 
 \begin_layout Standard
-En effet, supposons que tout les bits fassent 10ms.
- Une trame normal fait 9 bits (1octet + 1 bit de parité).
+En effet, supposons que tous les bits fassent 10ms.
+ Une trame normal fait 11 bits (1octet + 1 bit de parité + 1 bit de start
+ + 1 bit de stop).
  Le récepteur va, à partir du premier bit reçu déclencher un timer, et regarder
  régulière le signal pour voir à quel état se trouve celui-ci.
  Cependant, si les 2 systèmes n'ont pas exactement la même fréquence, il
@@ -640,7 +642,7 @@ La forme d'un paquet
 \end_layout
 
 \begin_layout Standard
-Après ces 3 octets, nous transférons un certain nombres de paquets de données
+Après ces 3 octets, nous transférons un certain nombre de paquets de données
  utiles, qui dépendra de ce que l'émetteur veut envoyer.
 \begin_inset Newline newline
 \end_inset
@@ -853,10 +855,10 @@ Nous allons commencer par essayer de comprendre comment fonctionne la couche
 
 \begin_layout Standard
 Anfin de savoir comment fonction cette couche, nous avons l'algorithme 3.1
- qui nous indique la liste des fonctions disponible dans ces fichiers.
+ qui nous indique la liste des fonctions disponibles dans ces fichiers.
  De plus, nous allons étudier le fonctionnement des fonctions les plus important
 es.
- Pour de plus ample détail, il est conseillé de se reporter au code source
+ Pour de plus amples détails, il est conseillé de se reporter au code source
  disponible en annexe qui est commenté.
 \end_layout
 
@@ -1008,10 +1010,10 @@ Le vecteur d'interruption de front montant sur PCINT0
 \emph on
 ISR(INT0_vect)
 \emph default
- permet de détecter l'arrivé d'un bit, même si le programme principal ne
+ permet de détecter l'arrivée d'un bit, même si le programme principal ne
  nous donne pas la main.
  Lors de la gestion de cette interruption, nous allons lancer le timer pour
- que celui-ci provoque une interruption 1ms après l'arrivé du bit.
+ que celui-ci provoque une interruption 1ms après l'arrivée du bit.
 \end_layout
 
 \begin_layout Subsubsection
