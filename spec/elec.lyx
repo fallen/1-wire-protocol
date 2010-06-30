@@ -2317,6 +2317,107 @@ receiver.c
 FPGA
 \end_layout
 
+\begin_layout Standard
+Nous n'avons malheureusement pas eu le temps d'implémenter notre protocole
+ sur FPGA, la tâche s'est avérée être plus ardue qu'espéré.
+ En effet il n'est pas évident de transposer l'algorithme en code Verilog
+ pour décrire le fonctionnement interne du FPGA car nous travaillons sur
+ des signaux, et un signal ne peut être piloté que par un seul processus,
+ ce qui rend la structure du code difficile et demande pas mal de réflexion.
+ Ceci-dit une brique de base a été implémentée, il s'agit d'une pile FIFO
+ qui se base sur de la BlockRAM (de la SRAM) interne aux FPGA Xilinx pour
+ mémoriser des octets de données, puis les restituer dans l'ordre.
+ Il s'agit en fait d'un ring buffer en mode FIFO, avec deux pointeurs (lecture
+ / écriture), c'est une sur-couche au module classique de BlockRAM, on peut
+ en effet envoyer à notre FIFO des ordres de lecture et des ordres d'écriture,
+ le module va indiquer quand il est occupé, acquitter les ordres, et effectuer
+ les lectures et les écritures et gérer en interne ses pointeurs de lecture-écri
+ture.
+ On n'a donc pas à s'occuper de l'adresse mémoire où l'ont lis/écrit dans
+ la BlockRAM car ce travail est fait en interne dans le module et n'est
+ pas visible à l'extérieur !
+\end_layout
+
+\begin_layout Standard
+Ce module a été écrit en Vérilog, un module de test (test-bench) a aussi
+ été écrit en Verilog afin de simuler le fonctionnement de notre pile FIFO
+ et de tester la conformité de sa réaction à nos attentes.
+ Nous avons utilisé le simulateur libre Icarus Verilog (iverilog), ainsi
+ que l'outil libre GTKWave pour analyser les données de sortie du simulateur
+ en affichant des chronogrammes des signaux importants afin de valider le
+ fonctionnement du module.
+\end_layout
+
+\begin_layout Standard
+Le module de test maintient tout d'abord la FIFO en état RESET pendant 1
+ cycle d'horloge (10 ns @ 100 MHz).
+\end_layout
+
+\begin_layout Standard
+Ensuite le RESET est relaché pendant 1 cycle d'horloge, puis on demande
+ une écriture de la valeur décimale 42 dans la FIFO (signal 
+\begin_inset Quotes eld
+\end_inset
+
+do_write
+\begin_inset Quotes erd
+\end_inset
+
+ mis à 1, et valeur décimale 42 mise dans le registre d'entré 
+\begin_inset Quotes eld
+\end_inset
+
+di
+\begin_inset Quotes erd
+\end_inset
+
+), on attend ensuite 2 cycles d'horloge (20 ns @ 100 MHz) car c'est le temps
+ nécessaire à la FIFO pour sauvegarder un octet et faire son travail interne
+ sur les pointeurs de lecture/écriture.
+ Puis de la même manière nous écrivons les valeurs décimales 25 et 32 dans
+ la FIFO.
+ Ensuite nous allons effectuer 3 lectures depuis la FIFO pour récupérer
+ nos 3 octets si tout se passe bien (et dans l'ordre dans lequel nous les
+ avons écrit).
+\end_layout
+
+\begin_layout Standard
+Nous mettons alors le signal 
+\begin_inset Quotes eld
+\end_inset
+
+do_write
+\begin_inset Quotes erd
+\end_inset
+
+ à 0 et le signal 
+\begin_inset Quotes eld
+\end_inset
+
+do_read
+\begin_inset Quotes erd
+\end_inset
+
+ à 1 pour indiquer à la FIFO que nous souhaitons lire, nous attendons 2
+ cycles d'horloge, ce qui a pour effet de mettre sur le signal de sortie
+ 
+\begin_inset Quotes eld
+\end_inset
+
+do
+\begin_inset Quotes erd
+\end_inset
+
+ la valeur lue depuis la FIFO, puis nous attendons encore 4 cycles supplémentair
+es afin de lire encore 2 octets.
+\end_layout
+
+\begin_layout Standard
+L'affichage du chronogramme de ce test dans GTKWave permet de bien valider
+ le fonctionnement de la FIFO, nous lisons bel et bien les octets écrit
+ précedemment !
+\end_layout
+
 \begin_layout Part
 Résultat, problème et analyse
 \end_layout
