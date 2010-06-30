@@ -1138,7 +1138,7 @@ données
 \begin_inset space ~
 \end_inset
 
-: Tout d'abord, nous enregistrons les 8 premier bits reçu puisqu'il s'agit
+: Tout d'abord, nous enregistrons les 8 premiers bits reçu puisqu'il s'agit
  de l'octet que l'on veut recevoir.
 \end_layout
 
@@ -1205,7 +1205,8 @@ bas
 
 Cette fonction va d'abord vérifier que la ligne est libre (à l'aide du mutex
  de ligne), puis envoyer un bit de start suivi des données, de la parité
- et enfin le bit de stop qui remet la ligne à l'état logique haut (5V).
+ et enfin le bit de stop qui remet la ligne à l'état (idle) logique haut
+ (5V).
 \end_layout
 
 \begin_layout Subsubsection
@@ -1295,16 +1296,16 @@ La couche d'adressage : mac.c et mac.h
 
 \begin_layout Standard
 Maintenant que nous savons comment fonctionne la couche physique, nous allonc
- voir comment la couche 2 (la couche de transport) traite les données reçu
+ voir comment la couche 2 (la couche de transport) traite les données reçues
  par la couche physique, et prépare les paquets et les stocke avant une
- utilisiation de ces data par la couche applicative.
+ utilisation de ces données par la couche applicative.
 \end_layout
 
 \begin_layout Standard
 Comme pour la couche physique, nous avons une liste des prototypes de fonctions
  existante, mais nous n'étudierons que le système global avec les fonctions
  les plus importantes.
- Pour de plus ample détail, se reporter aux codes sources.
+ Pour de plus amples informations, se reporter au code source.
 \end_layout
 
 \begin_layout Standard
@@ -1470,7 +1471,7 @@ Réception d'un paquet
 
 \begin_layout Standard
 Pour que l'application puisse recevoir les données d'un paquet, il faut
- créer ce paquet et traiter tout les données reçues.
+ créer ce paquet et traiter toutes les données reçues.
  Cela se fait en 3 grandes étapes que nous allons voir.
 \end_layout
 
@@ -1483,7 +1484,7 @@ La première étape correspond à la fonction
 \emph on
 void push_byte(unsigned char b)
 \emph default
- qui est appelé par la couche physique lorsque celle-ci à reçu un octet.
+ qui est appelé par la couche physique lorsque celle-ci a reçu un octet.
  C'est cette fonction qui va constituer le paquet.
  Pour ce faire, nous utilisons un compteur qui permet de connaitre le numéro
  de l'octet reçu.
@@ -1523,9 +1524,9 @@ Nous avons définit une structure paquet
 
 \end_inset
 
- que l'on a créer dans le buffer circulaire partagé entre la couche 2 et
+ que l'on a créé dans le buffer circulaire partagé entre la couche 2 et
  la couche applicative.
- Enfin, on va réinitialiser tout les variables locales et le compteur.
+ Enfin, on va réinitialiser toutes les variables locales et le compteur.
 \end_layout
 
 \begin_layout Description
@@ -1601,7 +1602,7 @@ destination
 \begin_inset space ~
 \end_inset
 
-: L'octet suivant est enregistrer directement sans traitement.
+: L'octet suivant est enregistré directement sans traitement.
  Il s'agit de l'adresse de destination.
 \end_layout
 
@@ -1619,9 +1620,9 @@ taille
 \end_inset
 
 : L'octet suivant est le checksum du paquet et la taille des données.
- Le chechsum est enregistré, tandis que la taille sera utilisé pour savoir
- combien d'octet de donnés nous allons enregistrer pour finir de créer notre
- paquet.
+ Le checksum est enregistré, tandis que la taille sera utilisée pour savoir
+ combien d'octets de données nous allons enregistrer pour finir de créer
+ notre paquet.
 \end_layout
 
 \begin_layout Description
@@ -1629,9 +1630,9 @@ Data
 \begin_inset space ~
 \end_inset
 
-: La suite correspond au data.
- On va utiliser la taille du paquet reçu juste avant afin de savoir combien
- en enregistrer.
+: La suite correspond aux données utiles (payload).
+ On va utiliser la taille du paquet reçu précédemment afin de savoir combien
+ d'octets enregistrer.
 \end_layout
 
 \end_deeper
@@ -1670,17 +1671,17 @@ Vérifier que le paquet n'est pas erroné en calculant le checksum du paquet,
 
 \begin_layout Itemize
 Vérifier que le buffer n'est pas plein pour ne pas effacer des paquets que
- l'on aurait pas lu.
+ l'application n'aurait pas encore lu.
 \end_layout
 
 \begin_layout Standard
 Si une de ces conditions n'est pas vérifiée, le paquet est supprimé et la
- fonction de gestion des erreurs est appelé pour signaler à l'utilisateur
- qu'une erreur c'est produite et qu'un paquet a été supprimé.
+ fonction de gestion des erreurs est appelées pour signaler à l'utilisateur
+ qu'une erreur s'est produite et qu'un paquet a été supprimé.
 \end_layout
 
 \begin_layout Standard
-En revanche, si tout c'est bien passé, on stocke le paquet dans le buffer.
+En revanche, si tout s'est bien passé, on stocke le paquet dans le buffer.
 \begin_inset Newline newline
 \end_inset
 
