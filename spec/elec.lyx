@@ -3612,6 +3612,43 @@ Je garderai donc un bon souvenir de cette expérience de projet en binôme,
 \end_layout
 
 \begin_layout Standard
+Je concluerai sur le fait que bien que ce projet puisse paraitre trivial
+ (Quoi encore une implémentation d'un protocole série ? il en existe déjà
+ plein ! I2C, SPI, RS-232, 1 wire etc ...) il arrive en fait une quantité non
+ négligeable de problèmes dès qu'on veut mettre en pratique la théorie.
+ Il faut donc réellement faire les choses afin de vraiment jauger leur degré
+ de difficulté, et ne pas juger à priori.
+ Il suffit de comparer le nombre de pages de ce rapport consacrées à la
+ partie 
+\begin_inset Quotes eld
+\end_inset
+
+Théorie
+\begin_inset Quotes erd
+\end_inset
+
+ et à la partie 
+\begin_inset Quotes eld
+\end_inset
+
+Pratique
+\begin_inset Quotes erd
+\end_inset
+
+ pour se rendre compte de la différence des deux aspects !
+\end_layout
+
+\begin_layout Standard
+Je conclue donc sur la fameuse expression idiomatique (en anglais pour Jérémy
+ ;)) : 
+\begin_inset Quotes eld
+\end_inset
+
+Don't judge a book by its cover.
+\begin_inset Quotes erd
+\end_inset
+
+
 \begin_inset Newpage newpage
 \end_inset
 
