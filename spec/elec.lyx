@@ -2857,8 +2857,8 @@ Test d'émission et réception en simultanée
 \end_layout
 
 \begin_layout Standard
-Ensuite, nous avons relié entre eux 2 microcontrôleurs flashé avec ce programme
- pour observer le foncionnement de notre programme.
+Ensuite, nous avons relié entre eux 2 microcontrôleurs flashés avec ce même
+ programme pour observer le foncionnement de notre programme.
 \end_layout
 
 \begin_layout Standard
@@ -2874,7 +2874,7 @@ La couche haute
 \end_layout
 
 \begin_layout Standard
-Pour utiliser notre programme, il suffit d'inclure la notre librairie avec
+Pour utiliser notre programme, il suffit d'inclure notre librairie avec
  la commande suivante
 \begin_inset space ~
 \end_inset
@@ -2892,7 +2892,7 @@ mac.h
 
 \emph default
 .
- Ensuite, il suffit d'envoyer des octets en appelent la fonction 
+ Ensuite, il suffit d'envoyer des octets en appelant la fonction 
 \emph on
 void send( uint8_t address_dest, uint8_t data[16], uint8_t taille)
 \emph default
