@@ -116,7 +116,7 @@ er toutes sortes d'électronique embarquée entre elles.
 Les systèmes embarqués que nous comptons utiliser sont des microcontrôleurs
  et des FPGA
 \begin_inset Foot
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -200,7 +200,7 @@ arduino
  avec un logiciel fourni gratuitement.
  Tout les programmes et toutes les shields
 \begin_inset Foot
-status open
+status collapsed
 
 \begin_layout Plain Layout
 Petite carte électronique que l'on peut facilement brancher sur la carte
@@ -216,7 +216,7 @@ Petite carte électronique que l'on peut facilement brancher sur la carte
 placement H
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -307,7 +307,7 @@ mmes des signaux importants.
 placement H
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -432,7 +432,7 @@ Le bit de stop
 placement H
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -513,7 +513,7 @@ Pour cela, un état logique haut sera représenté par un état haut de 2/3
 placement H
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -557,7 +557,7 @@ La trame de données est constituée par une trame de 8 bits contenant un
 placement H
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align center
@@ -2364,32 +2364,28 @@ Jérémy Cheynet
 Le langage C version microcontrôleur
 \end_layout
 
-\begin_layout Section
-Résolution des problèmes
+\begin_layout Standard
+Ma première surprise lorsque nous avons commencé ce PJ fut le langage C.
+ J'avais l'habitude de programmer des microcontrôleurs en basic, ou en langage
+ C arduino
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Langage C simplifié que l'on utilise avec la plateforme de développement
+ arduino
 \end_layout
 
-\begin_layout Subsection
-Détection du problème
-\end_layout
+\end_inset
 
-\begin_layout Subsection
-Les résoudre
-\end_layout
+.
+ Il y a une différence difficulté entre les 2 versions
+\begin_inset space ~
+\end_inset
 
-\begin_layout Chapter
-Yann Sionneau
-\end_layout
-
-\begin_layout Part
-Annexes
-\end_layout
-
-\begin_layout Chapter
-Code source microcontrôleur
-\end_layout
-
-\begin_layout Section
-La liaison série
+: une version est très bas niveau avec écriture dans les registres et programmat
+ion avec le datasheet à côté, tandis que l'autre version est beaucoup plus
+ haut niveau, sans trop comprendre le principe de fonctionnement du système.
 \end_layout
 
 \begin_layout Standard
@@ -2399,8 +2395,134 @@ wide false
 sideways false
 status collapsed
 
-\begin_layout LyX-Code
-\align center
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},language=C,numbers=left,numberstyle={\scriptsize}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+int ledPin =  13;    // LED connected to digital pin 13
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void setup()
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	pinMode(ledPin, OUTPUT);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+void loop()
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	digitalWrite(ledPin, HIGH); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	delay(1000);
+\end_layout
+
+\begin_layout Plain Layout
+
+	digitalWrite(ledPin, LOW);
+\end_layout
+
+\begin_layout Plain Layout
+
+	delay(1000);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Example de code de type arduino
+\begin_inset space ~
+\end_inset
+
+: faire clignoter une LED
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Le code ci-dessus configure le port C, bit 5 en sorti (renomé pin 13 sur
+ arduino) et le fait clignoter en le changeant d'état toute les secondes.
+ Il est évident à comprendre, mais on ne sait pas trop ce qu'il se passe
+ lorsque l'on fait le 
+\emph on
+pinMode
+\emph default
+, par exemple.
+ Maintenant, voyons ce que cela donne en langage C avr
+\begin_inset space ~
+\end_inset
+
+:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
 \begin_inset listings
 lstparams "basicstyle={\scriptsize},language=C,numbers=left,numberstyle={\scriptsize}"
 inline false
@@ -2413,12 +2535,7 @@ status open
 
 \begin_layout Plain Layout
 
-#include <avr/interrupt.h>
-\end_layout
-
-\begin_layout Plain Layout
-
-#include "usart.h"
+#include <util/delay.h>
 \end_layout
 
 \begin_layout Plain Layout
@@ -2427,7 +2544,7 @@ status open
 
 \begin_layout Plain Layout
 
-void puts(const char *string)
+int main (void)
 \end_layout
 
 \begin_layout Plain Layout
@@ -2437,1214 +2554,41 @@ void puts(const char *string)
 
 \begin_layout Plain Layout
 
-	unsigned char i;
+	DDRC |= ( 1 << DDC5);
 \end_layout
 
 \begin_layout Plain Layout
 
-	for (i = 0 ; string[i] != '
-\backslash
-0' ; i++) 		
 \end_layout
 
 \begin_layout Plain Layout
 
-		uart_send_char(string[i]);
+	while(1)
 \end_layout
 
 \begin_layout Plain Layout
 
-}
+	{
 \end_layout
 
 \begin_layout Plain Layout
 
+		PORTC |= ( 1 << PORTC5 );
 \end_layout
 
 \begin_layout Plain Layout
 
-unsigned char uart_recv_char(void)
+		_delay_ms(1000);
 \end_layout
 
 \begin_layout Plain Layout
 
-{ 
+		PORTC &= ~( 1 << PORTC5 );
 \end_layout
 
 \begin_layout Plain Layout
 
-	while ( ! (UCSR0A & (1 << RXC0)) ); 
-\end_layout
-
-\begin_layout Plain Layout
-
-		return UDR0;
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void uart_send_char(unsigned char byte)
-\end_layout
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\begin_layout Plain Layout
-
-	while ( !( UCSR0A & (1<<UDRE0)) );
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-	UDR0 = byte;
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void uart_init(void)
-\end_layout
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\begin_layout Plain Layout
-
-	UBRR0H = (unsigned char)(UBRR >> 8);
-\end_layout
-
-\begin_layout Plain Layout
-
-	UBRR0L = (unsigned char)UBRR; 
-\end_layout
-
-\begin_layout Plain Layout
-
-	UCSR0B = (1<<RXEN0)|(1<<TXEN0);
-\end_layout
-
-\begin_layout Plain Layout
-
-	UCSR0C = (1 << USBS0)|(3<<UCSZ00);
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-usart.c
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float algorithm
-placement H
-wide false
-sideways false
-status collapsed
-
-\begin_layout Plain Layout
-\align center
-\begin_inset listings
-lstparams "basicstyle={\scriptsize},language=C,numbers=left,numberstyle={\scriptsize}"
-inline false
-status open
-
-\begin_layout Plain Layout
-
-#ifndef _USART_H_
-\end_layout
-
-\begin_layout Plain Layout
-
-#define _USART_H_
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void uart_init(void);
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void puts(const char *);
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-unsigned char uart_recv_char(void);
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void uart_send_char(unsigned char);
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-#define FREQ 16000000
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-#define BAUD_RATE 9600
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-#define UBRR (FREQ/8/BAUD_RATE - 1)/2
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-#endif 
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-usart.h
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Section
-La couche physique
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float algorithm
-placement !t
-wide true
-sideways false
-status collapsed
-
-\begin_layout Plain Layout
-\align center
-\begin_inset listings
-lstparams "basicstyle={\scriptsize},language=C,numbers=left,numberstyle={\scriptsize}"
-inline false
-status open
-
-\begin_layout Plain Layout
-
-#include "phy.h"
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-/**
-\end_layout
-
-\begin_layout Plain Layout
-
- * Mutex de prise de la ligne 
-\end_layout
-
-\begin_layout Plain Layout
-
- */
-\end_layout
-
-\begin_layout Plain Layout
-
-uint8_t mutex_ligne;
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void initPin(void)
-\end_layout
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\begin_layout Plain Layout
-
-	DDRD &= ~( 1 << PORTD2 );
-\end_layout
-
-\begin_layout Plain Layout
-
-	PORTD |= ( 1 << PORTD2 );
-\end_layout
-
-\begin_layout Plain Layout
-
-	EICRA |= (1 << ISC01) | (1 << ISC00);
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void init_phy(void)
-\end_layout
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\begin_layout Plain Layout
-
-	mutex_ligne = 0;
-\end_layout
-
-\begin_layout Plain Layout
-
-	initPin(); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	cli(); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	initTimer(); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	EIMSK |= (1 << INT0); // disables INT1 and enables INT0 
-\end_layout
-
-\begin_layout Plain Layout
-
-	EIMSK &= ~(1 << INT1); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	sei();
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-/**
-\end_layout
-
-\begin_layout Plain Layout
-
- * Gestion de l'interruption du Timer0
-\end_layout
-
-\begin_layout Plain Layout
-
- * @param TIMER0_OVF Vecteur d'interruption
-\end_layout
-
-\begin_layout Plain Layout
-
- */
-\end_layout
-
-\begin_layout Plain Layout
-
-ISR(TIMER1_OVF_vect)
-\end_layout
-
-\begin_layout Plain Layout
-
-{ 
-\end_layout
-
-\begin_layout Plain Layout
-
-	static uint8_t compteur = 0;					  //permet de savoir quel est le bit qu'on
- attend de recevoir 
-\end_layout
-
-\begin_layout Plain Layout
-
-	static uint8_t timer_is_ok =0;					//permet de mesure le temps 
-\end_layout
-
-\begin_layout Plain Layout
-
-	static uint8_t reception = 0; 					//Octet de réception 
-\end_layout
-
-\begin_layout Plain Layout
-
-	static uint8_t parite = 0;						//Bit de parite recu
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-	/*
-\end_layout
-
-\begin_layout Plain Layout
-
-	 * Est ce que nous attendons le bit de start ? 
-\end_layout
-
-\begin_layout Plain Layout
-
-	 * on sample donc à 2 millisecondes.
- 
-\end_layout
-
-\begin_layout Plain Layout
-
-	 * Si ce n'est pas le cas, on passe à la suite.
- 
-\end_layout
-
-\begin_layout Plain Layout
-
-	 */ 
-\end_layout
-
-\begin_layout Plain Layout
-
-	if( compteur == 0 ) 
-\end_layout
-
-\begin_layout Plain Layout
-
-	{ 
-\end_layout
-
-\begin_layout Plain Layout
-
-		if( timer_is_ok == 1 ) 
-\end_layout
-
-\begin_layout Plain Layout
-
-		{ 
-\end_layout
-
-\begin_layout Plain Layout
-
-			if( !(sample()) ) 
-\end_layout
-
-\begin_layout Plain Layout
-
-			{ 
-\end_layout
-
-\begin_layout Plain Layout
-
-				mutex_ligne = 1;
-\end_layout
-
-\begin_layout Plain Layout
-
-				compteur++; 
-\end_layout
-
-\begin_layout Plain Layout
-
-			}
-\end_layout
-
-\begin_layout Plain Layout
-
-			timer_is_ok = 0; 
-\end_layout
-
-\begin_layout Plain Layout
-
-			stop_timer();
-\end_layout
-
-\begin_layout Plain Layout
-
-		}
-\end_layout
-
-\begin_layout Plain Layout
-
-		else
-\end_layout
-
-\begin_layout Plain Layout
-
-		{ 
-\end_layout
-
-\begin_layout Plain Layout
-
-			timer_is_ok++;
-\end_layout
-
-\begin_layout Plain Layout
-
-			relancerTimer(RECHARGE);
-\end_layout
-
-\begin_layout Plain Layout
-
-		}
-\end_layout
-
-\begin_layout Plain Layout
-
-	}
-\end_layout
-
-\begin_layout Plain Layout
-
-	else if( compteur == 10 )
-\end_layout
-
-\begin_layout Plain Layout
-
-	{ 
-\end_layout
-
-\begin_layout Plain Layout
-
-		compteur = 0;
-\end_layout
-
-\begin_layout Plain Layout
-
-		reception = 0; 
-\end_layout
-
-\begin_layout Plain Layout
-
-		timer_is_ok = 0; 
-\end_layout
-
-\begin_layout Plain Layout
-
-		mutex_ligne = 0;
-\end_layout
-
-\begin_layout Plain Layout
-
-		stop_timer(); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	}
-\end_layout
-
-\begin_layout Plain Layout
-
-	else 
-\end_layout
-
-\begin_layout Plain Layout
-
-	{ 
-\end_layout
-
-\begin_layout Plain Layout
-
-		/* 
-\end_layout
-
-\begin_layout Plain Layout
-
- 		* On vérifie qu'il s'est bien écoulé 5ms 
-\end_layout
-
-\begin_layout Plain Layout
-
- 		* C'est à dire que l'on rappel 4 fois cette fonction 
-\end_layout
-
-\begin_layout Plain Layout
-
-		 */
-\end_layout
-
-\begin_layout Plain Layout
-
-		if( !(timer_is_ok == 4) ) 
-\end_layout
-
-\begin_layout Plain Layout
-
-		{
-\end_layout
-
-\begin_layout Plain Layout
-
-			timer_is_ok++; 
-\end_layout
-
-\begin_layout Plain Layout
-
-			relancerTimer(RECHARGE);
-\end_layout
-
-\begin_layout Plain Layout
-
-		}
-\end_layout
-
-\begin_layout Plain Layout
-
-		else
-\end_layout
-
-\begin_layout Plain Layout
-
-		{
-\end_layout
-
-\begin_layout Plain Layout
-
-			if( compteur < 9 )						//On reçoit les bits de data de l'octet 
-\end_layout
-
-\begin_layout Plain Layout
-
-			{ 
-\end_layout
-
-\begin_layout Plain Layout
-
-				reception |= ( sample() << (8 - compteur) );		//On shift de manière
- à recevoir le MSB en premier, et le LSB en dernier.
-\end_layout
-
-\begin_layout Plain Layout
-
-				compteur++;
-\end_layout
-
-\begin_layout Plain Layout
-
-				stop_timer(); 
-\end_layout
-
-\begin_layout Plain Layout
-
-			}
-\end_layout
-
-\begin_layout Plain Layout
-
-			else								//On reçoit le bit de parité 
-\end_layout
-
-\begin_layout Plain Layout
-
-			{
-\end_layout
-
-\begin_layout Plain Layout
-
-				if( sample() == xor( reception ))
-\end_layout
-
-\begin_layout Plain Layout
-
-				{
-\end_layout
-
-\begin_layout Plain Layout
-
-					push_byte2(reception);
-\end_layout
-
-\begin_layout Plain Layout
-
-				}
-\end_layout
-
-\begin_layout Plain Layout
-
-				else
-\end_layout
-
-\begin_layout Plain Layout
-
-				{
-\end_layout
-
-\begin_layout Plain Layout
-
-					detection_erreur(PARITY_ERROR);
-\end_layout
-
-\begin_layout Plain Layout
-
-				}
-\end_layout
-
-\begin_layout Plain Layout
-
-				stop_timer();
-\end_layout
-
-\begin_layout Plain Layout
-
-				compteur++;
-\end_layout
-
-\begin_layout Plain Layout
-
-			}
-\end_layout
-
-\begin_layout Plain Layout
-
-			timer_is_ok = 0;						//On reset la variable timer_is_ok
-\end_layout
-
-\begin_layout Plain Layout
-
-		} 
-\end_layout
-
-\begin_layout Plain Layout
-
-	} 
-\end_layout
-
-\begin_layout Plain Layout
-
-	return;
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-uint8_t sample(void) 
-\end_layout
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\begin_layout Plain Layout
-
-	return (( PIND & (1 << PIND2) ) >> PIND2 );
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void stop_timer() 
-\end_layout
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\begin_layout Plain Layout
-
-	TCCR1B &= ~(1 << CS10 );
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-/** 
-\end_layout
-
-\begin_layout Plain Layout
-
- * Gestion de l'interruption sur front changeant de la pin INT0 
-\end_layout
-
-\begin_layout Plain Layout
-
- * @param PCINT0 Vecteur d'interruption  
-\end_layout
-
-\begin_layout Plain Layout
-
- */
-\end_layout
-
-\begin_layout Plain Layout
-
-ISR(INT0_vect)
-\end_layout
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\begin_layout Plain Layout
-
-	TCNT1 = 0; 
-\end_layout
-
-\begin_layout Plain Layout
-
-	relancerTimer(RECHARGE);
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-unsigned char verificationTemps(void)
-\end_layout
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\begin_layout Plain Layout
-
-	static unsigned char temps = 0; 
-\end_layout
-
-\begin_layout Plain Layout
-
-	if( temps == 4 ) 
-\end_layout
-
-\begin_layout Plain Layout
-
-	{ 
-\end_layout
-
-\begin_layout Plain Layout
-
-		temps = 0;
-\end_layout
-
-\begin_layout Plain Layout
-
-		TCCR1B &= ~(1 << CS10 ); 
-\end_layout
-
-\begin_layout Plain Layout
-
-		return 42;
-\end_layout
-
-\begin_layout Plain Layout
-
-	} 
-\end_layout
-
-\begin_layout Plain Layout
-
-	temps++; 
-\end_layout
-
-\begin_layout Plain Layout
-
-	relancerTimer(RECHARGE);
-\end_layout
-
-\begin_layout Plain Layout
-
-	return 0;
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void relancerTimer(uint16_t valeur)
-\end_layout
-
-\begin_layout Plain Layout
-
-{ 
-\end_layout
-
-\begin_layout Plain Layout
-
-	uint16_t timer; 
-\end_layout
-
-\begin_layout Plain Layout
-
-	sreg = SREG; 
-\end_layout
-
-\begin_layout Plain Layout
-
-	cli();
-\end_layout
-
-\begin_layout Plain Layout
-
-	stop_timer(); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	timer = TCNT1; 
-\end_layout
-
-\begin_layout Plain Layout
-
-	TCNT1 = 65535 - valeur + timer; 
-\end_layout
-
-\begin_layout Plain Layout
-
-	TCCR1B |= (1 << CS10 ); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	TIMSK1 |= (1 << TOIE1); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	SREG = sreg; 
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void initTimer(void) 
-\end_layout
-
-\begin_layout Plain Layout
-
-{ 
-\end_layout
-
-\begin_layout Plain Layout
-
-	//Permet de mettre les bonnes valeurs dans les registres pour activer le
- timer 1 en mode normal 
-\end_layout
-
-\begin_layout Plain Layout
-
-	TCCR1A &= (~(1 << WGM10 ) & ~(1 << WGM11));
-\end_layout
-
-\begin_layout Plain Layout
-
-	TCCR1B &= (~(1 << WGM12 ) & ~(1 << WGM13)); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	//Permet d'activer l'interruption timer 1 
-\end_layout
-
-\begin_layout Plain Layout
-
-	TIMSK1 |= (1 << TOIE1); 
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void emissionOctet( uint8_t octet)
-\end_layout
-
-\begin_layout Plain Layout
-
-{ 
-\end_layout
-
-\begin_layout Plain Layout
-
-	int8_t compteur = 0; 
-\end_layout
-
-\begin_layout Plain Layout
-
-	if( mutex_ligne == 0 ) 
-\end_layout
-
-\begin_layout Plain Layout
-
-	{ 
-\end_layout
-
-\begin_layout Plain Layout
-
-		EIMSK &= ~(1 << INT0);
-\end_layout
-
-\begin_layout Plain Layout
-
-		mutex_ligne = 1; 
-\end_layout
-
-\begin_layout Plain Layout
-
-		DDRD |= ( 1<<DDD2 );
-\end_layout
-
-\begin_layout Plain Layout
-
-		depart(); 
-\end_layout
-
-\begin_layout Plain Layout
-
-		for( compteur = 7; compteur >= 0; compteur--) 
-\end_layout
-
-\begin_layout Plain Layout
-
-		{
-\end_layout
-
-\begin_layout Plain Layout
-
-			if( (octet & (1 << compteur)) )
-\end_layout
-
-\begin_layout Plain Layout
-
-				envoieHaut();
-\end_layout
-
-\begin_layout Plain Layout
-
-			else
-\end_layout
-
-\begin_layout Plain Layout
-
-				envoieBas();
-\end_layout
-
-\begin_layout Plain Layout
-
-		}
-\end_layout
-
-\begin_layout Plain Layout
-
-		if( (xor(octet)) )
-\end_layout
-
-\begin_layout Plain Layout
-
-			envoieHaut();
-\end_layout
-
-\begin_layout Plain Layout
-
-		else
-\end_layout
-
-\begin_layout Plain Layout
-
-			envoieBas();
-\end_layout
-
-\begin_layout Plain Layout
-
-		pause();
-\end_layout
-
-\begin_layout Plain Layout
-
-		DDRD &= ~( 1<<DDD2 );
-\end_layout
-
-\begin_layout Plain Layout
-
-		PORTD |= ( 1 << PORTD2 ); 
-\end_layout
-
-\begin_layout Plain Layout
-
-		mutex_ligne = 0; 
-\end_layout
-
-\begin_layout Plain Layout
-
-		EIMSK |= (1 << INT0); 
+		_delay_ms(1000);
 \end_layout
 
 \begin_layout Plain Layout
@@ -3657,241 +2601,17 @@ void emissionOctet( uint8_t octet)
 }
 \end_layout
 
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void envoieHaut( void )
-\end_layout
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\begin_layout Plain Layout
-
-	PORTD |= (1 << PORTD2); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	_delay_ms(7); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	PORTD &= ~(1 << PORTD2); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	_delay_ms(3);
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void envoieBas( void )
-\end_layout
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\begin_layout Plain Layout
-
-	PORTD |= (1 << PORTD2); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	_delay_ms(3); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	PORTD &= ~(1 << PORTD2); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	_delay_ms(7);
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void pause(void) 
-\end_layout
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\begin_layout Plain Layout
-
-	PORTD |= (1 << PORTD2); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	_delay_ms(20);
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-void depart(void)
-\end_layout
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\begin_layout Plain Layout
-
-	PORTD &= ~(1 << PORTD2);
-\end_layout
-
-\begin_layout Plain Layout
-
-	_delay_ms(10); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	PORTD |= (1 << PORTD2); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	_delay_ms(1); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	PORTD &= ~(1 << PORTD2); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	_delay_ms(9); 
-\end_layout
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-uint8_t xor( uint8_t octet )
-\end_layout
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\begin_layout Plain Layout
-
-	uint8_t parite = octet;
-\end_layout
-
-\begin_layout Plain Layout
-
-	parite ^= (octet << 1); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	parite ^= (octet << 2); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	parite ^= (octet << 3); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	parite ^= (octet << 4); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	parite ^= (octet << 5); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	parite ^= (octet << 6); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	parite ^= (octet << 7); 
-\end_layout
-
-\begin_layout Plain Layout
-
-	parite &= 0x80; 
-\end_layout
-
-\begin_layout Plain Layout
-
-	return ( parite >> 7 ); 
-\end_layout
-
-\begin_layout Plain Layout
-
-} 
-\end_layout
-
 \end_inset
 
 
-\end_layout
-
-\begin_layout Plain Layout
 \begin_inset Caption
 
 \begin_layout Plain Layout
-phy.c
+Example de code de type langage C avr
+\begin_inset space ~
+\end_inset
+
+: faire clignoter une LED
 \end_layout
 
 \end_inset
@@ -3909,175 +2629,100 @@ phy.c
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float algorithm
-placement H
-wide false
-sideways false
-status collapsed
-
-\begin_layout Plain Layout
-\align center
-\begin_inset listings
-inline false
-status open
-
-\begin_layout Plain Layout
-
-\end_layout
-
+On voit bien dans cette seconde version du même programme que comment fonctionne
+ le système, ou l'on écrit les 1 et les 0, les registres de configuration,
+ etc ...
+\begin_inset Newline newline
 \end_inset
 
 
 \end_layout
 
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-phy.h
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
+\begin_layout Standard
+Personnellement, je préfère la seconde méthode pour programmer, car l'on
+ comprend beaucoup mieux ce qu'il se passe, et aujourd'hui, je pense être
+ capable de programmer beaucoup plus facilement qu'avant.
 \end_layout
 
 \begin_layout Section
-La couche d'adressage
+Git
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float algorithm
-placement H
-wide false
-sideways false
-status collapsed
-
-\begin_layout Plain Layout
-\align center
-\begin_inset listings
-inline false
-status open
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-mac.c
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float algorithm
-placement H
-wide false
-sideways false
-status collapsed
-
-\begin_layout Plain Layout
-\align center
-\begin_inset listings
-inline false
-status open
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-mac.h
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
+Pour que l'on puisse travailler en parallèle, Yann a mis en place un répository
+ git.
+ J'ai donc du apprendre le fonctionnement de git, var jusque là, j'utilisais
+ seulement des dépots svn.
+ Cette outil est très pratique, mais un peu plus complexe à utiliser que
+ svn.
+ Peut-être que par la suite, j'utiliserais git, mais pour l'instant, je
+ préfère quand même svn.
+ Seul le futur me dira ce que j'utiliserai ...
 \end_layout
 
 \begin_layout Section
-La couche applicative
+Résolution des problèmes
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float algorithm
-placement H
-wide false
-sideways false
-status collapsed
-
-\begin_layout Plain Layout
-\align center
-\begin_inset listings
-inline false
-status open
-
-\begin_layout Plain Layout
-
-\end_layout
-
+Losque un programme fonctionne du premier coup, ce n'est pas normal.
+ Heureusement pour nous, nous sommes resté normaux, et nos programmes ont
+ eux quelques bug.
+ C'est donc ainsi que nous avons appris à trouver les problèmes, et surtout
+ les résoudre.
+\begin_inset Newline newline
 \end_inset
 
 
 \end_layout
 
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-main.c
-\end_layout
-
+\begin_layout Standard
+Pour la détection de problème, nous avons utilisé la liaison série.
+ Nous avons donc appris à faire afficher des caractères ou des entiers utiles,
+ et au bon endroit.
+ La méthode que nous avons appliqué est de cibler fonction par fonction
+ pour voir ou se situe le problème.
+ Une fois que nous l'avons trouvé, il ne reste plus qu'à le débuguer.
+\begin_inset Newline newline
 \end_inset
 
 
 \end_layout
 
-\end_inset
-
-
+\begin_layout Standard
+En général, ledébugage est facile.
+ On s'aperçoie vite de ce qu'il mnque au programme.
+ Mais parfois, on ne le sait pas.
+ Ce fut le cas avec l'erreur du compilateur.
+ Le programme fonctionne très bien avec une compilation sans optimisation.
+ Mais dès que l'on compile avec une optimisation, le programme ne fonctionnait
+ plus.
+ Malheureusement pour nous, il était conseillé de compiler avec l'option
+ d'optimisation pour éviter des 
+\emph on
+warnings
+\emph default
+ lors de la compilation d'une librairie.
+ Et nous avons perdu un temp fou à chercher l'erreur das notre programme,
+ alors qu'il fallait aller voir les options de compilation.
+ Maintenant, je serais au courant, ce qui m'évitera de perdre beaucoup de
+ temps sur une chose comme ça.
 \end_layout
 
-\begin_layout Chapter*
-Code source FPGA
+\begin_layout Section
+Conclusion
+\end_layout
+
+\begin_layout Standard
+Je suis très content d'avoir fait ce programme, étant donné qu'il nous à
+ permis de voir beaucoup de choses, de corriger des problèmes.
+ Il m'a aussi montré que dans la théorie, nous oublions souvent des choses
+ que nous gène dans la pratique car des problèmes que nous n'imaginon pas
+ peuvent apparaitre.
+\end_layout
+
+\begin_layout Chapter
+Yann Sionneau
 \end_layout
 
 \begin_layout Standard
