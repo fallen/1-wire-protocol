@@ -2651,14 +2651,99 @@ Lors des tests que nous avons effectué, nous nous sommes rendu compte qu'il
 \end_inset
 
 , et nous recevions un caractère totalement différent.
+ Le plus troublant, c'est que parfois, notre programme foncionnait très
+ bien.
+\end_layout
+
+\begin_layout Standard
+Après des nombreuses recherche pour savoir pourquoi, nous nous sommes rendu
+ compte qu'il y avait une désynchronisation entre les bits envoyé et ceux
+ que nous recevions.
+ En effet, si j'envoyais '010000100'
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Cela correspond à 0x42 plus le bit de parité.
+\end_layout
+
+\end_inset
+
+, nous recevions parfois '100001000'.
+ Par contre, si on lançait les programmes au bon moment, les données passaient
+ très bien.
+\end_layout
+
+\begin_layout Standard
+Pour corriger ce problème, nous avons décidé de rajouter, par rapport à
+ ce que nous avions prévu en théorie, un bit de start, qui est unique, et
+ qui ne peut pas être confondu avec un bit normal.
+ Dès que nous avons rajouté ce bit de start, les octets étaient bien reçu,
+ quelque soit la façon dont on démare les microcontrôleurs.
 \end_layout
 
 \begin_layout Subsection
 Problème de lecture d'un paquet
 \end_layout
 
+\begin_layout Standard
+Le même problème est apparue lorsque la couche 2
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+La couche MAC.
+\end_layout
+
+\end_inset
+
+ lisait les octets pour former les paquets.
+ Elle considérait le premier paquet reçu comme le premier paquet de la trame,
+ donc cela pouvait créer un décalage.
+ Pour corriger cette erreur, nous avons décidé de créer un octet de start,
+ qui est aussi l'adresse source du paquet.
+ En fait, nous avons décidé que toutes les adresses commenceraient par 101.
+\end_layout
+
+\begin_layout Standard
+Donc, comme le paquet commence par l'adresse source, forcément, le premier
+ octet doit être de la forme 101xxxxx.
+\end_layout
+
 \begin_layout Section
 Le datasheet et la liaison série
+\end_layout
+
+\begin_layout Standard
+Pour le déboguage, nous avons décidé d'utiliser la liaison série, car celle-ci
+ est pratique, et facile à mettre en place.
+ Mais, lorsque nous la mettions, nous nous sommes rendu compte que celle-ci
+ ne fonctionnait pas.
+ Après quelques recherche pour trouver l'origine, qui aurait pu être dans
+ le max232, ou le convertiseur série-USB, nous l'avons trouvée, et elle
+ venait du code.
+ En effet, dans le datasheet, il était indiqué d'utiliser la formule suivante
+ pour configurer le débit de la liaison série
+\begin_inset space ~
+\end_inset
+
+: 
+\begin_inset Formula $UBRR=\frac{f_{osc}}{2*BAUD}-1$
+\end_inset
+
+.
+ Après analyse de la librairie serial de la carte arduino, nous nous sommes
+ rendu compte que la formule qui fallait utiliser était la suivante
+\begin_inset space ~
+\end_inset
+
+: 
+\begin_inset Formula $UBRR=\frac{\frac{f_{osc}}{8*BAUD}-1}{2}$
+\end_inset
+
+.
+ Il nous a suffit de changer la formule pour que la liaison série fonctionne
+ correctement.
 \end_layout
 
 \begin_layout Chapter
