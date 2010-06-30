@@ -2666,8 +2666,8 @@ Lors des tests que nous avons effectué, nous nous sommes rendu compte qu'il
 \end_layout
 
 \begin_layout Standard
-Après des nombreuses recherche pour savoir pourquoi, nous nous sommes rendu
- compte qu'il y avait une désynchronisation entre les bits envoyé et ceux
+Après des nombreuses recherches pour savoir pourquoi, nous nous sommes rendu
+ compte qu'il y avait une désynchronisation entre les bits envoyés et ceux
  que nous recevions.
  En effet, si j'envoyais '010000100'
 \begin_inset Foot
@@ -2688,8 +2688,8 @@ Cela correspond à 0x42 plus le bit de parité.
 Pour corriger ce problème, nous avons décidé de rajouter, par rapport à
  ce que nous avions prévu en théorie, un bit de start, qui est unique, et
  qui ne peut pas être confondu avec un bit normal.
- Dès que nous avons rajouté ce bit de start, les octets étaient bien reçu,
- quelque soit la façon dont on démare les microcontrôleurs.
+ Dès que nous avons rajouté ce bit de start, les octets étaient bien reçus,
+ quelque soit la façon dont on démarrait les microcontrôleurs.
 \end_layout
 
 \begin_layout Subsection
@@ -2697,7 +2697,7 @@ Problème de lecture d'un paquet
 \end_layout
 
 \begin_layout Standard
-Le même problème est apparue lorsque la couche 2
+Le même problème est apparu lorsque la couche 2
 \begin_inset Foot
 status collapsed
 
@@ -2708,7 +2708,7 @@ La couche MAC.
 \end_inset
 
  lisait les octets pour former les paquets.
- Elle considérait le premier paquet reçu comme le premier paquet de la trame,
+ Elle considérait le premier octet reçu comme le premier octet de la trame,
  donc cela pouvait créer un décalage.
  Pour corriger cette erreur, nous avons décidé de créer un octet de start,
  qui est aussi l'adresse source du paquet.
@@ -2727,8 +2727,8 @@ Le datasheet et la liaison série
 \begin_layout Standard
 Pour le déboguage, nous avons décidé d'utiliser la liaison série, car celle-ci
  est pratique, et facile à mettre en place.
- Mais, lorsque nous la mettions, nous nous sommes rendu compte que celle-ci
- ne fonctionnait pas.
+ Mais, lorsque nous l'avons implémentée, nous nous sommes rendu compte que
+ celle-ci ne fonctionnait pas.
  Après quelques recherche pour trouver l'origine, qui aurait pu être dans
  le max232, ou le convertiseur série-USB, nous l'avons trouvée, et elle
  venait du code.
