@@ -1690,24 +1690,24 @@ En revanche, si tout s'est bien passé, on stocke le paquet dans le buffer.
 
 \begin_layout Standard
 Afin d'éviter de supprimer des paquets que l'application n'aurait pas lu,
- et de savoir quel où lire ou où écrire, nous avons des pointeurs de lecture
+ et de savoir où lire et où écrire, nous avons des pointeurs de lecture
  et d'écriture sur ce ring buffer.
  Une comparaison de ces 2 pointeurs, en fonction de l'overflow (qui indique
- si nous avons fait un tour complet ou non du buffer), nous permet savoir
- où écrire, et où lire.
+ si nous avons fait un tour complet ou non du buffer), nous permet de savoir
+ où écrire et où lire.
 \end_layout
 
 \begin_layout Subsubsection
-Lecture d'un paquet de la couche applicative
+Lecture d'un paquet depuis la couche applicative
 \end_layout
 
 \begin_layout Standard
 La fonction 
 \emph on
-int8_t recv (uint8_t *src, uint8_t *taille, unsigned char *datas)
+uint8_t recv (uint8_t *src, uint8_t *taille, unsigned char *datas)
 \emph default
- peut-être appelé par la couche applicative pour lire un paquet reçu.
- Le paquet est lu dans le buffer circulaire.
+ peut-être appelée par la couche applicative pour lire un paquet reçu depuis
+ le buffer circulaire de réception.
 \end_layout
 
 \begin_layout Standard
@@ -1732,14 +1732,14 @@ Nous avons fait le choix de faire une fonction bloquante pour éviter de
 \end_inset
 
 .
- En revanche, en cas d'erreur détecté (checksum, parité, ...), on débbloque
+ En revanche, en cas d'erreur détectée (checksum, parité, ...), on débloque
  la fonction.
 \end_layout
 
 \begin_layout Standard
-Cette fonction renvoie un code retour positif si tout c'est bien passé,
+Cette fonction renvoie un code retour positif si tout s'est bien passé,
  et un code retour négatif en cas d'erreur de détection.
- Ce code retour permet d'éviter de croire que tout c'est bien déroulé, mais
+ Ce code retour permet d'éviter de croire que tout s'est bien déroulé, mais
  avoir retourné des pointeurs vides, ce qui peut être très problématique
  pour la suite du programme.
  
@@ -1776,7 +1776,7 @@ La fonction
 uint8_t calcul_checksum( uint8_t data[16], uint8_t taille)
 \emph default
  calcul le checksum et renvoie la valeur du checksum.
- Elle est utilisé lors de l'envoie et lors de la réception d'un paquet.
+ Elle est utilisée lors de l'envoie et lors de la réception d'un paquet.
 \end_layout
 
 \begin_layout Standard
@@ -1784,7 +1784,7 @@ A l'heure actuelle, cette fonction n'est pas optimisée pour détecter ou
  corriger les erreurs.
  En effet, il est possible que 2 erreurs se compensent.
  Cependant, elle fonctionne très bien pour détecter une erreur sur plusieurs
- bits en fonction de leurs positions dans les datas.
+ bits en fonction de leurs positions dans les données.
 \end_layout
 
 \begin_layout Subsubsection
@@ -1797,13 +1797,13 @@ Une fonction de gestion des erreurs appelée
 void detection_erreur( uint8_t erreur)
 \emph default
  a été implémentée.
- Elle est appelé en cas d'erreur quelconque lors de la réception de données.
+ Elle est appelée en cas d'erreur quelconque lors de la réception de données.
  Les erreurs peuvent être une erreur dans la parité, dans le checksum ou
  dans la taille du buffer qui peut être rempli.
  Dans ce cas, en fonction du type d'erreur, elle affichera un message différent,
  et débloquera la fonction 
 \emph on
-recv
+recv()
 \emph default
  avec un code retour d'erreur.
 \end_layout
@@ -1836,11 +1836,12 @@ La liaison série
 \end_layout
 
 \begin_layout Standard
-En plus du port série du microcontrôleur ATmega328, la carte arduino (que
+En plus du port série du microcontrôleur ATmega328p, la carte arduino (que
  nous avons utilisé pour le développement de notre programme) possède un
  FTDI.
  Celui-ci permet de faire la conversion du signal série TTL en signal série
- RS232.
+ RS232 puis de l'envoyer ensuite sur de l'USB en étant reconnu par GNU/Linux
+ et Windows comme une console série (over USB).
 \end_layout
 
 \begin_layout Standard
@@ -1851,7 +1852,7 @@ Nous avons créé les fonctions qui nous permettent d'émettre sur le port
 \begin_layout Standard
 Les fonctions que nous avons faites (dont les codes sources se trouvent
  en annexe) permettent d'initialiser la liaison série, de recevoir ou émettre
- un caractère, et d'envoyer un chaine de caractères.
+ un caractère, et d'envoyer une chaine de caractères.
 \end_layout
 
 \begin_layout Standard
@@ -1977,8 +1978,9 @@ La fonction
 \emph on
 void puts(const char *)
 \emph default
- prend en paramètre un pointeur vers une chaine de caractère et va utiliser
- la fontion uart_send_char pour envoyer la chaine de caractère
+ prend en paramètre un pointeur vers une chaine de caractère à zéro terminal
+ et va utiliser la fontion uart_send_char pour envoyer la chaine caractère
+ par caractère
 \emph on
 .
 \end_layout
@@ -2004,8 +2006,8 @@ Sender
 \end_layout
 
 \begin_layout Standard
-Afin de tester les fonctions de bases, nous avons fait un programme qui
- émet en boucle un caractère
+Afin de tester les fonctions de base, nous avons fait un programme qui émet
+ en boucle un caractère
 \begin_inset Foot
 status collapsed
 
@@ -2328,8 +2330,8 @@ Le compilateur
 \end_layout
 
 \begin_layout Standard
-Ci dessus, je vais écrire bout de code qui font presque la même chose.
- D'après vous quel est la différence entre ces 2 bouts de code ?
+Ci dessus, je vais écrire deux bouts de code qui font presque la même chose.
+ D'après vous quelle est la différence entre ces 2 bouts de code ?
 \end_layout
 
 \begin_layout Standard
@@ -2569,7 +2571,7 @@ Cette variable est remise à 1 lors par interruption lors de la réception
 \end_layout
 
 \begin_layout Standard
-Dans le second, on fait la même chose, si ce n'est que l'on affiche pas
+Dans le second, on fait la même chose, si ce n'est que l'on n'affiche pas
  le caractère 
 \begin_inset Quotes eld
 \end_inset
@@ -2583,8 +2585,8 @@ Dans le second, on fait la même chose, si ce n'est que l'on affiche pas
 
 \begin_layout Standard
 Et bien la différence entre ces 2 programmes, c'est que le premier fonctionne
- très bien, et affiche les caractères reçu, tandis que le second n'affiche
- absolument pas le caractère reçu, alors que les interruptions nous montre
+ très bien, et affiche les caractères reçus, tandis que le second n'affiche
+ absolument pas le caractère reçu, alors que les interruptions nous montrent
  bien que l'on a reçu le caractère en question.
 \begin_inset Newline newline
 \end_inset
@@ -2594,9 +2596,10 @@ Et bien la différence entre ces 2 programmes, c'est que le premier fonctionne
 
 \begin_layout Standard
 L'erreur viens de la compilation.
- Compiler le programme avec l'option d'optimisation d'avr-gcc fait que le
- programme 2 ne fonctionne pas.
- Sans cette option, le second programme fonctionne très bien.
+ Compiler le programme avec l'option d'optimisation d'avr-gcc (-O2) fait
+ que le programme 2 ne fonctionne pas.
+ Sans cette option (avec simplement -O0 ou rien du tout), le second programme
+ fonctionne très bien.
 \begin_inset Newline newline
 \end_inset
 
@@ -2614,24 +2617,28 @@ warnings
 delay
 \emph default
 .
- Nous avons ainsi perdu beaucoup de temps à chercher cette erreur.
- On n'arrivait pas à savoir d'ou elle venait.
+ Nous avons ainsi perdu beaucoup de temps à chercher d'où provenait cette
+ erreur assez incompréhensible.
+ On n'arrivait pas à savoir d'où elle venait.
 \end_layout
 
 \begin_layout Standard
 Ce n'est que plus tard, au restaurant avec un ancien élève du club de robotique
- de l'école, en discutant de ce problème que nous avons appris le pourquoi
- du comment.
- Avec l'optimisation du lors de la compilation, le test sera effectué lors
+ de l'école (David Coutherut), en discutant de ce problème que nous avons
+ appris le pourquoi du comment.
+ Avec l'optimisation lors de la compilation, le test sera effectué lors
  du premier passage dans le if.
  Pour les suivants, il va utiliser le résultat qu'il a déjà, et donc, ne
- va pas aller vérifier si la variable a changé, ou non.
+ va pas aller vérifier si la variable a changé ou non.
  Pour éviter d'avoir ce problème, il aurait fallu que l'on rajoute l'option
  
 \emph on
 volatile
 \emph default
  devant la définition de notre variable.
+ Il s'agit en fait de forcer à lire et à écrire directement en mémoire RAM
+ en by-passant la mémoire cache du System-on-Chip AVR, seulement nous pensions
+ que l'AVR n'avait pas de mémoire cache, erreur !
 \end_layout
 
 \begin_layout Section
