@@ -2324,12 +2324,333 @@ Les problèmes qui sont apparus
 Le compilateur
 \end_layout
 
+\begin_layout Standard
+Ci dessus, je vais écrire bout de code qui font presque la même chose.
+ D'après vous quel est la différence entre ces 2 bouts de code ?
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},language=C,numbers=left,numberstyle={\scriptsize}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+while(1)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	uart_send_char('"');
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (has_been_received)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{
+\end_layout
+
+\begin_layout Plain Layout
+
+		uart_send_char(received_byte);
+\end_layout
+
+\begin_layout Plain Layout
+
+		has_been_received = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	else 
+\end_layout
+
+\begin_layout Plain Layout
+
+		emissionOctet('@');
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Erreur compilateur 1
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+et
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},language={C++},numbers=left,numberstyle={\scriptsize}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+while(1)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (has_been_received)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{
+\end_layout
+
+\begin_layout Plain Layout
+
+		uart_send_char(received_byte);
+\end_layout
+
+\begin_layout Plain Layout
+
+		has_been_received = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	else 
+\end_layout
+
+\begin_layout Plain Layout
+
+		emissionOctet('@');
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Erreur compilateur 2
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Comme vous pouvez le voir, ces 2 bouts de codes, qui sont la boucle principale
+ du programme main font pratiquement la même chose.
+\end_layout
+
+\begin_layout Standard
+Le premier va envoyer un caractère sur la liaison série
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Il va envoyer le caractère 
+\begin_inset Quotes eld
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+.
+ Ensuite, il va vérifier la valeur de la variable globale 
+\emph on
+has_been_received
+\emph default
+.
+ Si celle-ci vaut 1
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Cette variable est remise à 1 lors par interruption lors de la réception
+ d'un octet.
+\end_layout
+
+\end_inset
+
+, on remet la variable à 0, et on affiche l'octet que nous avons reçu.
+ Sinon, on envoie le caractère 
+\begin_inset Quotes eld
+\end_inset
+
+@
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Dans le second, on fait la même chose, si ce n'est que l'on affiche pas
+ le caractère 
+\begin_inset Quotes eld
+\end_inset
+
+.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Et bien la différence entre ces 2 programmes, c'est que le premier fonctionne
+ très bien, et affiche les caractères reçu, tandis que le second n'affiche
+ absolument pas le caractère reçu, alors que les interruptions nous montre
+ bien que l'on a reçu le caractère en question.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+L'erreur viens de la compilation.
+ Compiler le programme avec l'option d'optimisation d'avr-gcc fait que le
+ programme 2 ne fonctionne pas.
+ Sans cette option, le second programme fonctionne très bien.
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Malheureusement pour nous, nous avions rajouté l'option d'optimisation de
+ la compilation pour éviter d'avoir des 
+\emph on
+warnings
+\emph default
+ lors de la compilation de la librairie 
+\emph on
+delay
+\emph default
+.
+ Nous avons ainsi perdu beaucoup de temps à chercher cette erreur.
+ On n'arrivait pas à savoir d'ou elle venait.
+\end_layout
+
+\begin_layout Standard
+Ce n'est que plus tard, au restaurant avec un ancien élève du club de robotique
+ de l'école, en discutant de ce problème que nous avons appris le pourquoi
+ du comment.
+ Avec l'optimisation du lors de la compilation, le test sera effectué lors
+ du premier passage dans le if.
+ Pour les suivants, il va utiliser le résultat qu'il a déjà, et donc, ne
+ va pas aller vérifier si la variable a changé, ou non.
+ Pour éviter d'avoir ce problème, il aurait fallu que l'on rajoute l'option
+ 
+\emph on
+volatile
+\emph default
+ devant la définition de notre variable.
+\end_layout
+
 \begin_layout Section
 La désynchronisation
 \end_layout
 
 \begin_layout Subsection
 Problème de lecture d'un octet
+\end_layout
+
+\begin_layout Standard
+Lors des tests que nous avons effectué, nous nous sommes rendu compte qu'il
+ y avait un problème lors de la réception.
+ En effet, nous envoyions le caractère
+\begin_inset Quotes erd
+\end_inset
+
+@
+\begin_inset Quotes erd
+\end_inset
+
+, et nous recevions un caractère totalement différent.
 \end_layout
 
 \begin_layout Subsection
