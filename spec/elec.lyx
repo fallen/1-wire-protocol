@@ -1809,18 +1809,6 @@ recv()
 \end_layout
 
 \begin_layout Section
-La couche applicative : main.c
-\end_layout
-
-\begin_layout Subsection
-Utilisation de notre code
-\end_layout
-
-\begin_layout Subsection
-Ressources utilisées
-\end_layout
-
-\begin_layout Section
 Le débogage
 \end_layout
 
