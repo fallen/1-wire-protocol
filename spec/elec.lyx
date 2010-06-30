@@ -2764,8 +2764,150 @@ Les résultats
 Emission et réception simultanées
 \end_layout
 
+\begin_layout Standard
+Pour tester le fonctionnement de notre système, nous avons fait un premier
+ test.
+ Le principe de celui-ci est d'envoyer un caractère en continue, et en cas
+ de réception d'un octet, afficher ce que nous avons reçu.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},language={C++},numbers=left,numberstyle={\scriptsize}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+while(1)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (has_been_received)
+\end_layout
+
+\begin_layout Plain Layout
+
+	{
+\end_layout
+
+\begin_layout Plain Layout
+
+		uart_send_char(received_byte);
+\end_layout
+
+\begin_layout Plain Layout
+
+		has_been_received = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	else 
+\end_layout
+
+\begin_layout Plain Layout
+
+		emissionOctet('@');
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Test d'émission et réception en simultanée
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ensuite, nous avons relié entre eux 2 microcontrôleurs flashé avec ce programme
+ pour observer le foncionnement de notre programme.
+\end_layout
+
+\begin_layout Standard
+Le résultat est positif étant donné que les caractères sont envoyés un coup
+ par l'un, un coup par l'autre, de manière aléatoire, sans qu'il y ait de
+ caractère erroné, ou de chevauchement de caractère.
+ Lorsque un microcontrôleur est en émission, l'autre ne peut absolument
+ pas passer en émission.
+\end_layout
+
 \begin_layout Section
 La couche haute
+\end_layout
+
+\begin_layout Standard
+Pour utiliser notre programme, il suffit d'inclure la notre librairie avec
+ la commande suivante
+\begin_inset space ~
+\end_inset
+
+: 
+\emph on
+#include 
+\begin_inset Quotes eld
+\end_inset
+
+mac.h
+\begin_inset Quotes erd
+\end_inset
+
+
+\emph default
+.
+ Ensuite, il suffit d'envoyer des octets en appelent la fonction 
+\emph on
+void send( uint8_t address_dest, uint8_t data[16], uint8_t taille)
+\emph default
+.
+ Cette fonction envoie un caractère dès que la ligne est libre.
+\end_layout
+
+\begin_layout Standard
+Pour la réception, il suffit d'appeler la fonction 
+\emph on
+int8_t recv (uint8_t *src, uint8_t *taille, unsigned char *datas)
+\emph default
+.
+ Cette fonction retourne un entier négatif en cas d'erreur de réception.
+ Si l'entier est positif, c'est que l'entier est bien envoyé.
 \end_layout
 
 \begin_layout Part
