@@ -2907,7 +2907,7 @@ int8_t recv (uint8_t *src, uint8_t *taille, unsigned char *datas)
 \emph default
 .
  Cette fonction retourne un entier négatif en cas d'erreur de réception.
- Si l'entier est positif, c'est que l'entier est bien envoyé.
+ Si l'entier est positif, c'est que le paquet a bien été reçu.
 \end_layout
 
 \begin_layout Part
@@ -3058,7 +3058,7 @@ Example de code de type arduino
 \end_layout
 
 \begin_layout Standard
-Le code ci-dessus configure le port C, bit 5 en sorti (renomé pin 13 sur
+Le code ci-dessus configure le port C, bit 5 en sorti (renommé pin 13 sur
  arduino) et le fait clignoter en le changeant d'état toute les secondes.
  Il est évident à comprendre, mais on ne sait pas trop ce qu'il se passe
  lorsque l'on fait le 
