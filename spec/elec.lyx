@@ -3558,6 +3558,59 @@ Cependant etant debutant avec git nous avons commis quelques erreurs, surtout
  erreurs, même si je marche quand même encore sur des oeufs en l'utilisant.
 \end_layout
 
+\begin_layout Section
+FPGA
+\end_layout
+
+\begin_layout Standard
+Les FPGAs sont un peu ma passion du moment, j'ai fais découvrir ces puces
+ aux gens de MiNET et d'INTech et leur ai fais quelques petites démonstrations
+ simples que j'ai pu faire avec mon niveau de débutant, puis j'ai par la
+ suite mené à bien avec Guillaume Rose (1A) un petit projet de bruteforcer
+ de hash MD5 sur FPGA qui fonctionne plutôt pas mal !
+\end_layout
+
+\begin_layout Standard
+Je dois dire que je suis très déçu de ne pas avoir eu le temps d'implémenter
+ le protocole sur FPGA, car c'était la partie qui m'intéressait le plus
+ !
+\end_layout
+
+\begin_layout Standard
+Seulement devant l'ampleur de la tâche, et le fait que nous avions pas mal
+ de bugs sur la partie microcontrôleurs, nous avons préféré nous consacrer
+ à la correction des bugs afin d'avoir au moins une version fonctionnelle
+ sur microcontrôleur plutôt que du code non achevé/non fonctionnel sur FPGA
+ et microcontrôleur.
+\end_layout
+
+\begin_layout Section
+Conclusion, mon sentiment
+\end_layout
+
+\begin_layout Standard
+Je suis frustré de ne pas avoir mené la mission à bien à 100%, la partie
+ FPGA n'est qu'un brouillon de réflexion et qu'un début d'implémentation.
+\end_layout
+
+\begin_layout Standard
+Mais je suis bien content que celà fonctionne sur microcontrôleur vu la
+ quantité de problèmes rencontrée.
+\end_layout
+
+\begin_layout Standard
+J'ai clairement le sentiment d'avoir appris de la rigueur et d'avoir acquis
+ encore de l'expérience dans le monde de l'embarqué qui m'intéresse tant,
+ même si j'aurai préféré gagner en compétences en FPGA plutôt qu'en microcontrôl
+eurs AVR.
+\end_layout
+
+\begin_layout Standard
+Je garderai donc un bon souvenir de cette expérience de projet en binôme,
+ un sentiment de satisfaction à propos de l'implémentation fonctionnelle
+ sur microcontrôleurs et un arrière goût amer pour la partie FPGA inachevée.
+\end_layout
+
 \begin_layout Standard
 \begin_inset Newpage newpage
 \end_inset
