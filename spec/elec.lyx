@@ -2666,8 +2666,8 @@ Lors des tests que nous avons effectué, nous nous sommes rendu compte qu'il
 \end_layout
 
 \begin_layout Standard
-Après des nombreuses recherche pour savoir pourquoi, nous nous sommes rendu
- compte qu'il y avait une désynchronisation entre les bits envoyé et ceux
+Après des nombreuses recherches pour savoir pourquoi, nous nous sommes rendu
+ compte qu'il y avait une désynchronisation entre les bits envoyés et ceux
  que nous recevions.
  En effet, si j'envoyais '010000100'
 \begin_inset Foot
@@ -2688,8 +2688,8 @@ Cela correspond à 0x42 plus le bit de parité.
 Pour corriger ce problème, nous avons décidé de rajouter, par rapport à
  ce que nous avions prévu en théorie, un bit de start, qui est unique, et
  qui ne peut pas être confondu avec un bit normal.
- Dès que nous avons rajouté ce bit de start, les octets étaient bien reçu,
- quelque soit la façon dont on démare les microcontrôleurs.
+ Dès que nous avons rajouté ce bit de start, les octets étaient bien reçus,
+ quelque soit la façon dont on démarrait les microcontrôleurs.
 \end_layout
 
 \begin_layout Subsection
@@ -2697,7 +2697,7 @@ Problème de lecture d'un paquet
 \end_layout
 
 \begin_layout Standard
-Le même problème est apparue lorsque la couche 2
+Le même problème est apparu lorsque la couche 2
 \begin_inset Foot
 status collapsed
 
@@ -2708,7 +2708,7 @@ La couche MAC.
 \end_inset
 
  lisait les octets pour former les paquets.
- Elle considérait le premier paquet reçu comme le premier paquet de la trame,
+ Elle considérait le premier octet reçu comme le premier octet de la trame,
  donc cela pouvait créer un décalage.
  Pour corriger cette erreur, nous avons décidé de créer un octet de start,
  qui est aussi l'adresse source du paquet.
@@ -2727,8 +2727,8 @@ Le datasheet et la liaison série
 \begin_layout Standard
 Pour le déboguage, nous avons décidé d'utiliser la liaison série, car celle-ci
  est pratique, et facile à mettre en place.
- Mais, lorsque nous la mettions, nous nous sommes rendu compte que celle-ci
- ne fonctionnait pas.
+ Mais, lorsque nous l'avons implémentée, nous nous sommes rendu compte que
+ celle-ci ne fonctionnait pas.
  Après quelques recherche pour trouver l'origine, qui aurait pu être dans
  le max232, ou le convertiseur série-USB, nous l'avons trouvée, et elle
  venait du code.
@@ -2937,7 +2937,7 @@ Langage C simplifié que l'on utilise avec la plateforme de développement
 \end_inset
 
 .
- Il y a une différence difficulté entre les 2 versions
+ Il y a une différence de difficulté entre les 2 versions
 \begin_inset space ~
 \end_inset
 
@@ -3188,7 +3188,7 @@ Example de code de type langage C avr
 
 \begin_layout Standard
 On voit bien dans cette seconde version du même programme que comment fonctionne
- le système, ou l'on écrit les 1 et les 0, les registres de configuration,
+ le système, où l'on écrit les 1 et les 0, les registres de configuration,
  etc ...
 \begin_inset Newline newline
 \end_inset
@@ -3209,12 +3209,11 @@ Git
 \begin_layout Standard
 Pour que l'on puisse travailler en parallèle, Yann a mis en place un répository
  git.
- J'ai donc du apprendre le fonctionnement de git, var jusque là, j'utilisais
+ J'ai donc du apprendre le fonctionnement de git, car jusque là, j'utilisais
  seulement des dépots svn.
- Cette outil est très pratique, mais un peu plus complexe à utiliser que
- svn.
- Peut-être que par la suite, j'utiliserais git, mais pour l'instant, je
- préfère quand même svn.
+ Cet outil est très pratique, mais un peu plus complexe à utiliser que svn.
+ Peut-être que par la suite, j'utiliserai git, mais pour l'instant, je préfère
+ quand même svn.
  Seul le futur me dira ce que j'utiliserai ...
 \end_layout
 
@@ -3223,9 +3222,9 @@ Résolution des problèmes
 \end_layout
 
 \begin_layout Standard
-Losque un programme fonctionne du premier coup, ce n'est pas normal.
+Losqu'un programme fonctionne du premier coup, ce n'est pas normal.
  Heureusement pour nous, nous sommes resté normaux, et nos programmes ont
- eux quelques bug.
+ eu quelques bogues.
  C'est donc ainsi que nous avons appris à trouver les problèmes, et surtout
  les résoudre.
 \begin_inset Newline newline
@@ -3239,8 +3238,8 @@ Pour la détection de problème, nous avons utilisé la liaison série.
  Nous avons donc appris à faire afficher des caractères ou des entiers utiles,
  et au bon endroit.
  La méthode que nous avons appliqué est de cibler fonction par fonction
- pour voir ou se situe le problème.
- Une fois que nous l'avons trouvé, il ne reste plus qu'à le débuguer.
+ pour voir où se situe le problème.
+ Une fois que nous l'avons trouvé, il ne restait plus qu'à le déboguer.
 \begin_inset Newline newline
 \end_inset
 
@@ -3248,12 +3247,12 @@ Pour la détection de problème, nous avons utilisé la liaison série.
 \end_layout
 
 \begin_layout Standard
-En général, ledébugage est facile.
- On s'aperçoie vite de ce qu'il mnque au programme.
+En général, le débugage est facile.
+ On s'apperçoie vite de ce qu'il manque au programme.
  Mais parfois, on ne le sait pas.
  Ce fut le cas avec l'erreur du compilateur.
- Le programme fonctionne très bien avec une compilation sans optimisation.
- Mais dès que l'on compile avec une optimisation, le programme ne fonctionnait
+ Le programme fonctionnait très bien avec une compilation sans optimisation.
+ Mais dès que l'on compilait avec une optimisation, le programme ne fonctionnait
  plus.
  Malheureusement pour nous, il était conseillé de compiler avec l'option
  d'optimisation pour éviter des 
@@ -3261,9 +3260,9 @@ En général, ledébugage est facile.
 warnings
 \emph default
  lors de la compilation d'une librairie.
- Et nous avons perdu un temp fou à chercher l'erreur das notre programme,
+ Et nous avons perdu un temps fou à chercher l'erreur dans notre programme,
  alors qu'il fallait aller voir les options de compilation.
- Maintenant, je serais au courant, ce qui m'évitera de perdre beaucoup de
+ Maintenant, je serai au courant, ce qui m'évitera de perdre beaucoup de
  temps sur une chose comme ça.
 \end_layout
 
@@ -3272,10 +3271,10 @@ Conclusion
 \end_layout
 
 \begin_layout Standard
-Je suis très content d'avoir fait ce programme, étant donné qu'il nous à
+Je suis très content d'avoir fait ce programme, étant donné qu'il nous a
  permis de voir beaucoup de choses, de corriger des problèmes.
  Il m'a aussi montré que dans la théorie, nous oublions souvent des choses
- que nous gène dans la pratique car des problèmes que nous n'imaginon pas
+ que nous gène dans la pratique car des problèmes que nous n'imaginons pas
  peuvent apparaitre.
 \end_layout
 
